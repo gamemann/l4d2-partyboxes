@@ -75,6 +75,79 @@ l4d2pb_max_good_boxes "-1"
 // -
 // Default: "-1"
 l4d2pb_max_mid_boxes "-1"
+
+// The type of max limits. 0 = round-based. 1 = map-based.
+// -
+// Default: "0"
+// Minimum: "0.000000"
+// Maximum: "2.000000"
+l4d2pb_max_type "0"
+
+// The plugin's verbose level.
+// -
+// Default: "0"
+// Minimum: "0.000000"
+// Maximum: "5.000000"
+l4d2pb_verbose "0"
+
+// The type of verbose messages. 0 = prints to chat. 1 = prints to server console. 2 = prints to client's console.
+// -
+// Default: "0"
+// Minimum: "0.000000"
+// Maximum: "0.000000"
+l4d2pb_verbose_type "0"
+```
+
+## Core Natives
+Here are a list of core natives you may use when developing your own box types. Take a look at [`scripting/l4d2pb-box-test.sp`](./scripting/l4d2pb-box-test.sp) for a basic example.
+
+```c
+/**
+ * Prints a debug message from the core plugin.
+ *
+ * @param req      The required verbose level from the core plugin.
+ * @param msg      The debug message to send.
+ * @param ...      Formatted arguments for msg.
+ *
+ * @return void
+ */
+native void DebugMsg(int req, const char[] msg, any...);
+
+/**
+ * Registers a box to core and adds it to the box rotation.
+ *
+ * @param type      The box type (1 = Good, 2 = Mid, 3 = Bad))
+ * @param name      A short/code name for the box.
+ * @param display   The box display name.      
+ *
+ * @return 0 on success or 1 on error.
+ */
+native int RegisterBox(int type, const char[] name, const char[] display);
+
+/**
+ * Unloads a box from the core.
+ *
+ * @param type      The box type (1 = Good, 2 = Mid, 3 = Bad))
+ * @param name      A short/code name for the box.
+ *
+ * @return 0 on success or 1 on error.
+ */
+native int UnloadBox(int type, const char[] name);
+```
+
+## Core Forwards
+Here are core (global) forwards you may call while developing your own box types. Take a look at [`scripting/l4d2pb-box-test.sp`](./scripting/l4d2pb-box-test.sp) for a basic example.
+
+```c
+/**
+ * Called when a box is opened.
+ * 
+ * @param type      The type of box opened.
+ * @param boxName   The box short/code name that was opened.
+ * @param userid    The user ID who opened the box.
+ * 
+ */
+public void BoxOpened(int type, const char[] boxName, int userId);
 ```
 
 ## Credits
