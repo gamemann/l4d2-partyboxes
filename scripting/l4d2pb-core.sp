@@ -3,6 +3,7 @@
 #define PL_VERSION "1.0.0"
 
 #define BOX_MAX_TYPES 4
+#define MSG_MAX_TYPES 3
 
 public Plugin myinfo = {
     name = "L4D2 Party Boxes - Core",
@@ -25,18 +26,38 @@ enum struct Box {
     BoxType type;
 }
 
-int gNoneBoxesOpen[MAXPLAYERS + 1];
-int gGoodBoxesOpen[MAXPLAYERS + 1];
-int gMidBoxesOpen[MAXPLAYERS + 1];
-int gBadBoxesOpen[MAXPLAYERS + 1];
+int gNoneBoxesOpened = 0;
+int gGoodBoxesOpened = 0;
+int gMidBoxesOpened = 0;
+int gBadBoxesOpened = 0;
+
+int gClNoneBoxesOpened[MAXPLAYERS + 1];
+int gClGoodBoxesOpened[MAXPLAYERS + 1];
+int gClMidBoxesOpened[MAXPLAYERS + 1];
+int gClBadBoxesOpened[MAXPLAYERS + 1];
+
+enum MsgType {
+    VERBOSE_CHAT = 0,
+    VERBOSE_SERVER,
+    VERBOSE_CONSOLE
+}
+
+enum MaxType {
+    MAX_ROUND = 0,
+    MAX_MAP
+}
 
 ConVar gCvEnabled = null;
+
+ConVar gCvVerbose = null;
+ConVar gCvVerboseType = null;
 
 ConVar gCvNoneChance = null;
 ConVar gCvGoodChance = null;
 ConVar gCvMidChance = null;
 ConVar gCvBadChance = null;
 
+ConVar gCvMaxType = null;
 ConVar gCvMaxGoodBoxes = null;
 ConVar gCvMaxMidBoxes = null;
 ConVar gCvMaxBadBoxes = null;
@@ -45,11 +66,15 @@ ConVar gCvEndRoundStats = null;
 
 bool gEnabled = true;
 
+int gVerbose = 0;
+int gVerboseType = view_as<int>(VERBOSE_CHAT);
+
 float gNoneChance = 0.10;
 float gGoodChance = 0.15;
 float gMidChance = 0.50;
 float gBadChance = 0.25;
 
+int gMaxType = view_as<int>(MAX_ROUND);
 int gMaxGoodBoxes = -1;
 int gMaxMidBoxes = -1;
 int gMaxBadBoxes = -1;
@@ -64,6 +89,8 @@ public APLRes AskPluginLoad2(Handle hdl, bool late, char[] err, int errMax) {
     RegPluginLibrary("l4d2pb");
 
     // Natives.
+    CreateNative("DebugMsg", Native_DebugMsg);
+
     CreateNative("RegisterBox", Native_RegisterBox);
     CreateNative("UnloadBox", Native_UnloadBox);
 
@@ -82,6 +109,12 @@ public void OnPluginStart() {
     gCvEnabled = CreateConVar("l4d2pb_enabled", "1", "Enables or disables L4D2 Party Boxes plugin.", _, true, 0.0, true, 1.0);
     HookConVarChange(gCvEnabled, CVar_Changed);
 
+    gCvVerbose = CreateConVar("l4d2pb_verbose", "0", "The plugin's verbose level.", _, true, 0.0, true, 5.0);
+    HookConVarChange(gCvVerbose, CVar_Changed);
+
+    gCvVerboseType = CreateConVar("l4d2pb_verbose_type", "0", "The type of verbose messages. 0 = prints to chat. 1 = prints to server console. 2 = prints to client's console.", _, true, 0.0, true, view_as<float>(MSG_MAX_TYPES));
+    HookConVarChange(gCvVerboseType, CVar_Changed);
+
     gCvNoneChance = CreateConVar("l4d2pb_chance_none", "0.10", "The chances of getting no fun boxes when opened.", _, true, 0.0, true, 1.0);
     HookConVarChange(gCvNoneChance, CVar_Changed);
 
@@ -93,6 +126,9 @@ public void OnPluginStart() {
 
     gCvBadChance = CreateConVar("l4d2pb_chance_bad", "0.25", "The chances of a bad box being opened.", _, true, 0.0, true, 1.0);
     HookConVarChange(gCvBadChance, CVar_Changed);
+
+    gCvMaxType = CreateConVar("l4d2pb_max_type", "0", "The type of max limits. 0 = round-based. 1 = map-based.", _, true, 0.0, true, 2.0);
+    HookConVarChange(gCvMaxType, CVar_Changed);
 
     gCvMaxGoodBoxes = CreateConVar("l4d2pb_max_good_boxes", "-1", "The maximum amount of good boxes that can be opened per round. 0 = disables good boxes. -1 = no limit.");
     HookConVarChange(gCvMaxGoodBoxes, CVar_Changed);
@@ -107,10 +143,14 @@ public void OnPluginStart() {
     HookConVarChange(gCvEndRoundStats, CVar_Changed);
 
     // Forwards.
-    gGfBoxOpened = new GlobalForward("BoxOpened", ET_Ignore, Param_Cell, Param_String);
+    gGfBoxOpened = new GlobalForward("BoxOpened", ET_Ignore, Param_Cell, Param_String, Param_Cell);
 
     // Events.
     HookEvent("upgrade_pack_used", Event_UpgradePackUsed);
+    HookEvent("round_end", Event_RoundEnd);
+
+    // Commands.
+    RegConsoleCmd("sm_l4d2pb_stats", Command_Stats, "Prints stats and information.");
     
     // Load translactions file.
     LoadTranslations("l4d2pb.phrases.txt");
@@ -121,14 +161,40 @@ public void OnPluginStart() {
     gBoxes = new ArrayList(sizeof(Box));
 }
 
+stock void DebugMsg(int req, const char[] msg, any...) {
+    if (req > gVerbose)
+        return;
+
+    // We need to format the message.
+    int len = strlen(msg) + 255;
+    char[] fMsg = new char[len];
+
+    VFormat(fMsg, len, msg, 3);
+
+    switch (view_as<MsgType>(gVerboseType)) {
+        case VERBOSE_CHAT:
+            PrintToChatAll("%t %s", "Tag", fMsg);
+
+        case VERBOSE_CONSOLE:
+            PrintToConsoleAll("%t %s", "Tag", fMsg);
+
+        case VERBOSE_SERVER:
+            PrintToServer("%t %s", "Tag", fMsg);
+    }
+}
+
 public void OnConfigsExecuted() {
     gEnabled = GetConVarBool(gCvEnabled);
+
+    gVerbose = GetConVarInt(gCvVerbose);
+    gVerboseType = GetConVarInt(gCvVerboseType);
     
     gNoneChance = GetConVarFloat(gCvNoneChance);
     gGoodChance = GetConVarFloat(gCvGoodChance);
     gMidChance = GetConVarFloat(gCvMidChance);
     gBadChance = GetConVarFloat(gCvBadChance);
 
+    gMaxType = GetConVarInt(gCvMaxType);
     gMaxGoodBoxes = GetConVarInt(gCvMaxGoodBoxes);
     gMaxMidBoxes = GetConVarInt(gCvMaxMidBoxes);
     gMaxBadBoxes = GetConVarInt(gCvMaxBadBoxes);
@@ -138,6 +204,42 @@ public void OnConfigsExecuted() {
 
 public void CVar_Changed(ConVar cv, const char[] oldV, const char[] newV) {
     OnConfigsExecuted();
+}
+
+stock void ResetBoxCounters() {
+    gNoneBoxesOpened = 0;
+    gGoodBoxesOpened = 0;
+    gMidBoxesOpened = 0;
+    gBadBoxesOpened = 0;
+
+    for (int i = 0; i < MaxClients; i++) {
+        gClNoneBoxesOpened[i] = 0;
+        gClGoodBoxesOpened[i] = 0;
+        gClMidBoxesOpened[i] = 0;
+        gClBadBoxesOpened[i] = 0;
+    }
+}
+
+stock void PrintStats() {
+    int totalBoxes = gGoodBoxesOpened + gMidBoxesOpened + gBadBoxesOpened;
+
+    // To Do: Calculate individual stats.
+
+    PrintToChatAll("%t A total of %d boxes were opened! Good boxes => %d. Mid boxes => %d. Bad boxes => %d.", "Tag", totalBoxes, gGoodBoxesOpened, gMidBoxesOpened, gBadBoxesOpened);
+}
+
+public Action Command_Stats(int client, int args) {
+    int totalBoxes = gGoodBoxesOpened + gMidBoxesOpened + gBadBoxesOpened;
+    int clTotalBoxes = gClGoodBoxesOpened[client] + gClMidBoxesOpened[client] + gClBadBoxesOpened[client];
+
+    PrintToChat(client, "%t A total of %d boxes have been opened so far. You've opened a total of %d boxes during this round/map. Total boxes => %d.", totalBoxes, clTotalBoxes, gBoxes.Length);
+
+    return Plugin_Handled;
+}
+
+public void OnMapStart() {
+    // We need to reset everything regardless.
+    ResetBoxCounters();
 }
 
 stock int BoxGetIdx(const char[] name) {
@@ -193,19 +295,32 @@ stock BoxType PickRandomBoxType() {
     float prob = 0.0;
 
     for (int i = 0; i < BOX_MAX_TYPES; i++) {
-        switch (i) {
-            case view_as<int>(BOXTYPE_NONE):
-                prob += gNoneChance;
+        bool skip = false;
 
-            case view_as<int>(BOXTYPE_GOOD):
-                prob += gGoodChance;
+        BoxType type = view_as<BoxType>(i);
 
-            case view_as<int>(BOXTYPE_MID):
-                prob += gMidChance;
+        if (type == BOXTYPE_NONE)
+            prob += gNoneChance;
+        else if (type == BOXTYPE_GOOD) {
+            prob += gGoodChance;
 
-            case view_as<int>(BOXTYPE_BAD):
-                prob += gBadChance;
+            if (gMaxGoodBoxes == 0 || gGoodBoxesOpened > gMaxGoodBoxes)
+                skip = true;
+        } else if (type == BOXTYPE_MID) {
+            prob += gMidChance;
+
+            if (gMaxMidBoxes == 0 || gMidBoxesOpened > gMaxMidBoxes)
+                skip = true;
+        } else if (type == BOXTYPE_BAD) {
+            prob += gBadChance;
+
+            if (gMaxBadBoxes == 0 || gBadBoxesOpened > gMaxBadBoxes)
+                skip = true;
         }
+
+        // Check if we should skip this box type.
+        if (skip)
+            continue;
 
         if (randVal <= prob)
             return view_as<BoxType>(i);
@@ -222,7 +337,7 @@ stock Box PickRandomBox(BoxType type) {
 
         gBoxes.GetArray(i, cur);
 
-        PrintToChatAll("Checking box at index %d (%d == %d)", i, view_as<int>(cur.type), view_as<int>(type));
+        DebugMsg(5, "Checking box at index %d (type %d == %d).", i, view_as<int>(cur.type), view_as<int>(type));
 
         if (cur.type == type)
             boxes.PushArray(cur);
@@ -251,7 +366,7 @@ public Action Event_UpgradePackUsed(Handle ev, const char[] name, bool dontBroad
 
     // Check box count.
     if (gBoxes.Length < 1) {
-        PrintToChatAll("No boxes found! (%d)", gBoxes.Length);
+        DebugMsg(1, "Upgrade box used, but no boxes found!");
 
         return Plugin_Continue;
     }
@@ -259,7 +374,7 @@ public Action Event_UpgradePackUsed(Handle ev, const char[] name, bool dontBroad
     // Get random type.
     BoxType randType = PickRandomBoxType();
 
-    PrintToChatAll("PICKED RANDOM TYPE %d.", view_as<int>(randType));
+    DebugMsg(3, "Upgrade box used and box type == %d!", view_as<int>(randType));
 
     if (randType == BOXTYPE_NONE)
         return Plugin_Continue;
@@ -269,13 +384,17 @@ public Action Event_UpgradePackUsed(Handle ev, const char[] name, bool dontBroad
     
     randBox = PickRandomBox(randType);
 
-    PrintToChatAll("PICKED RANDOM BOX: %s", randBox.name);
+    DebugMsg(3, "Picked random box: %s!", randBox.name);
+
+    // Get user ID.
+    int userId = GetEventInt(ev, "userid", -1);
 
     // Call box opened forward.
     Call_StartForward(gGfBoxOpened);
 
     Call_PushCell(randBox.type);
     Call_PushString(randBox.name);
+    Call_PushCell(userId);
 
     Call_Finish();
 
@@ -284,9 +403,44 @@ public Action Event_UpgradePackUsed(Handle ev, const char[] name, bool dontBroad
     return Plugin_Handled;
 }
 
+public Action Event_RoundEnd(Handle ev, const char[] name, bool dontBroadcast) {
+    // Check if we need to print end-round stats.
+    if (gEndRoundStats)
+        PrintStats();
+
+    // Check if we need to reset box counters.
+    if (view_as<MaxType>(gMaxType) == MAX_ROUND)
+        ResetBoxCounters();
+
+    return Plugin_Continue;
+}
+
+public int Native_DebugMsg(Handle pl, int paramsCnt) {
+    // Get required level.
+    int req = GetNativeCell(1);
+
+    int msgLen;
+    GetNativeStringLength(2, msgLen);
+
+    if (msgLen <= 0)
+        return 1;
+
+    char[] msg = new char[msgLen + 1];
+    GetNativeString(2, msg, msgLen + 1);
+
+    char fMsg[4096];
+    FormatNativeString(0, 0, 3, sizeof(fMsg), _, fMsg, msg);
+
+    DebugMsg(req, fMsg);
+    
+    return 0;
+}
+
 public int Native_RegisterBox(Handle pl, int paramsCnt) {
+    // Get type.
     int type = GetNativeCell(1);
 
+    // Get name.
     int nameLen;
     GetNativeStringLength(2, nameLen);
 
@@ -296,10 +450,21 @@ public int Native_RegisterBox(Handle pl, int paramsCnt) {
     char[] name = new char[nameLen + 1];
     GetNativeString(2, name, nameLen + 1);
 
+    // Get display name.
+    int displayLen;
+    GetNativeStringLength(3, displayLen);
+
+    if (displayLen <= 0)
+        return 1;
+
+    char[] display = new char[displayLen + 1];
+    GetNativeString(3, display, displayLen + 1);
+
     // Create box.
     Box newBox;
 
     strcopy(newBox.name, sizeof(newBox.name), name);
+    strcopy(newBox.display, sizeof(newBox.display), display);
     newBox.type = view_as<BoxType>(type);
 
     // Remove dups.
@@ -308,7 +473,7 @@ public int Native_RegisterBox(Handle pl, int paramsCnt) {
     // Add box to string map.
     int idx = gBoxes.PushArray(newBox);
 
-    PrintToChatAll("%t Registing box %s (index %d)! Type => %d", "Tag", newBox.name, idx, view_as<int>(newBox.type));
+    DebugMsg(2, "Registing box '%s' (%s) at index %d! Box type => %d.", newBox.name, newBox.display, idx, view_as<int>(newBox.type));
 
     return 0;
 }

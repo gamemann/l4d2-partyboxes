@@ -5,6 +5,7 @@
 #define PL_VERSION "1.0.0"
 
 #define BOX_NAME "test"
+#define BOX_DISPLAY "Test"
 
 public Plugin myinfo = {
     name = "L4D2 Party Boxes - Box - Test",
@@ -17,8 +18,15 @@ public Plugin myinfo = {
 ConVar gCvEnabled = null;
 
 bool gEnabled = false;
+bool gCoreEnabled = false;
 
 bool gLoaded = false;
+
+public void OnLibraryAdded(const char[] name) 
+{
+	if (StrEqual(name, "l4d2pb"))
+        gCoreEnabled = true;
+}
 
 public void OnPluginStart() {
     gCvEnabled = CreateConVar("l4d2pb_box_test_enabled", "0", "Enables the test box", _, true, 0.0, true, 1.0);
@@ -32,20 +40,22 @@ public void OnPluginStart() {
 
 public void OnConfigsExecuted() {
     gEnabled = GetConVarBool(gCvEnabled);
+    if (gCoreEnabled) {
+        if (!gLoaded && gEnabled) {
+            RegisterBox(1, BOX_NAME, BOX_DISPLAY);
 
-    if (!gLoaded && gEnabled) {
-        RegisterBox(1, BOX_NAME);
+            DebugMsg(2, "Found test box not loaded. Loading now!");
 
-        PrintToChatAll("Found test box not loaded. Loading now!");
+            gLoaded = true;
+        } else if (gLoaded && !gEnabled) {
+            DebugMsg(1, "Found test box loaded, but not enabled. Unloading now!");
 
-        gLoaded = true;
-    } else if (gLoaded && !gEnabled) {
-        PrintToChatAll("Found test box loaded, but not enabled. Unloading now!");
+            UnloadBox(1, BOX_NAME);
 
-        UnloadBox(1, BOX_NAME);
-
-        gLoaded = false;
-    }
+            gLoaded = false;
+        }
+    } else
+        PrintToServer("%t Warning => L4D2-PB core not loaded!");
 }
 
 public void CVar_Changed(Handle cv, const char[] oldV, const char[] newV) {
@@ -56,8 +66,8 @@ public void Activate() {
     PrintToChatAll("%t %t", "Tag", "Activated");
 }
 
-public void BoxOpened(int type, const char[] boxName) {
-    PrintToChatAll("Got BoxOpened() event! Box name => %s", boxName);
+public void BoxOpened(int type, const char[] boxName, int userId) {
+    DebugMsg(4, "Got BoxOpened() event! Box name => %s", boxName);
 
     if (strcmp(boxName, BOX_NAME, false) == 0)
         Activate();
