@@ -1,0 +1,7 @@
+"Phrases"
+{
+    "Tag"
+    {
+        "en"        "[L4D2-PB]"
+    }
+}

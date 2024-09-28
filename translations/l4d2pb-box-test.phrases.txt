@@ -1,0 +1,7 @@
+"Phrases"
+{
+    "Activated"
+    {
+        "en"        "The test box has been activated!"
+    }
+}
