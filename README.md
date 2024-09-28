@@ -127,12 +127,11 @@ native int RegisterBox(int type, const char[] name, const char[] display);
 /**
  * Unloads a box from the core.
  *
- * @param type      The box type (1 = Good, 2 = Mid, 3 = Bad))
  * @param name      A short/code name for the box.
  *
  * @return 0 on success or 1 on error.
  */
-native int UnloadBox(int type, const char[] name);
+native int UnloadBox(const char[] name);
 ```
 
 ## Core Forwards

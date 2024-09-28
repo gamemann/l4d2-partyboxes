@@ -21,9 +21,9 @@ enum BoxType {
 }
 
 enum struct Box {
+    BoxType type;
     char name[MAX_NAME_LENGTH];
     char display[MAX_NAME_LENGTH];
-    BoxType type;
 }
 
 int gNoneBoxesOpened = 0;
@@ -232,7 +232,7 @@ public Action Command_Stats(int client, int args) {
     int totalBoxes = gGoodBoxesOpened + gMidBoxesOpened + gBadBoxesOpened;
     int clTotalBoxes = gClGoodBoxesOpened[client] + gClMidBoxesOpened[client] + gClBadBoxesOpened[client];
 
-    PrintToChat(client, "%t A total of %d boxes have been opened so far. You've opened a total of %d boxes during this round/map. Total boxes => %d.", totalBoxes, clTotalBoxes, gBoxes.Length);
+    PrintToChat(client, "%t A total of %d boxes have been opened so far. You've opened a total of %d boxes during this round/map. Total boxes => %d.", "Tag", totalBoxes, clTotalBoxes, gBoxes.Length);
 
     return Plugin_Handled;
 }
@@ -304,17 +304,17 @@ stock BoxType PickRandomBoxType() {
         else if (type == BOXTYPE_GOOD) {
             prob += gGoodChance;
 
-            if (gMaxGoodBoxes == 0 || gGoodBoxesOpened > gMaxGoodBoxes)
+            if (gMaxGoodBoxes == 0 || (gMaxGoodBoxes > 0 && gGoodBoxesOpened > gMaxGoodBoxes))
                 skip = true;
         } else if (type == BOXTYPE_MID) {
             prob += gMidChance;
 
-            if (gMaxMidBoxes == 0 || gMidBoxesOpened > gMaxMidBoxes)
+            if (gMaxMidBoxes == 0 || (gMaxMidBoxes > 0 && gMidBoxesOpened > gMaxMidBoxes))
                 skip = true;
         } else if (type == BOXTYPE_BAD) {
             prob += gBadChance;
 
-            if (gMaxBadBoxes == 0 || gBadBoxesOpened > gMaxBadBoxes)
+            if (gMaxBadBoxes == 0 || (gMaxBadBoxes > 0 && gBadBoxesOpened > gMaxBadBoxes))
                 skip = true;
         }
 
@@ -330,7 +330,7 @@ stock BoxType PickRandomBoxType() {
 }
 
 stock Box PickRandomBox(BoxType type) {
-    ArrayList boxes = new ArrayList();
+    ArrayList boxes = new ArrayList(sizeof(Box));
 
     for (int i = 0; i < gBoxes.Length; i++) {
         Box cur;
@@ -344,11 +344,15 @@ stock Box PickRandomBox(BoxType type) {
     }
 
     // Choose random box.
-    int idx = GetRandomInt(0, boxes.Length - 1);
-
     Box ret;
+    
+    if (boxes.Length > 0) {
+        int idx = GetRandomInt(0, boxes.Length - 1);
 
-    boxes.GetArray(idx, ret);
+        boxes.GetArray(idx, ret);
+
+        DebugMsg(5, "Choosing random box at index %d!", idx, ret.name);
+    }
 
     return ret;
 }
@@ -384,6 +388,13 @@ public Action Event_UpgradePackUsed(Handle ev, const char[] name, bool dontBroad
     
     randBox = PickRandomBox(randType);
 
+    // Make sure this isn't an invalid box.
+    if (randBox.type == BOXTYPE_NONE) {
+        DebugMsg(1, "Random box picked, but box type is none indicating invalid box.", randBox.name, view_as<int>(randBox.type));
+
+        return Plugin_Continue;
+    }
+
     DebugMsg(3, "Picked random box: %s!", randBox.name);
 
     // Get user ID.
@@ -392,7 +403,7 @@ public Action Event_UpgradePackUsed(Handle ev, const char[] name, bool dontBroad
     // Call box opened forward.
     Call_StartForward(gGfBoxOpened);
 
-    Call_PushCell(randBox.type);
+    Call_PushCell(view_as<int>(randBox.type));
     Call_PushString(randBox.name);
     Call_PushCell(userId);
 
@@ -479,16 +490,14 @@ public int Native_RegisterBox(Handle pl, int paramsCnt) {
 }
 
 public int Native_UnloadBox(Handle pl, int paramsCnt) {
-    int type = GetNativeCell(1);
-
     int nameLen;
-    GetNativeStringLength(2, nameLen);
+    GetNativeStringLength(1, nameLen);
 
     if (nameLen <= 0)
         return 1;
         
     char[] name = new char[nameLen + 1];
-    GetNativeString(2, name, nameLen + 1);
+    GetNativeString(1, name, nameLen + 1);
 
     // Get index.
     int idx = BoxGetIdx(name);

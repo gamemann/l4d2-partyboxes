@@ -42,7 +42,7 @@ public void OnConfigsExecuted() {
     gEnabled = GetConVarBool(gCvEnabled);
     if (gCoreEnabled) {
         if (!gLoaded && gEnabled) {
-            RegisterBox(1, BOX_NAME, BOX_DISPLAY);
+            RegisterBox(2, BOX_NAME, BOX_DISPLAY);
 
             DebugMsg(2, "Found test box not loaded. Loading now!");
 
@@ -50,7 +50,7 @@ public void OnConfigsExecuted() {
         } else if (gLoaded && !gEnabled) {
             DebugMsg(1, "Found test box loaded, but not enabled. Unloading now!");
 
-            UnloadBox(1, BOX_NAME);
+            UnloadBox(BOX_NAME);
 
             gLoaded = false;
         }
@@ -67,7 +67,7 @@ public void Activate() {
 }
 
 public void BoxOpened(int type, const char[] boxName, int userId) {
-    DebugMsg(4, "Got BoxOpened() event! Box name => %s", boxName);
+    DebugMsg(4, "Got BoxOpened() event! Box name => %s. Box opener => %N", boxName, GetClientOfUserId(userId));
 
     if (strcmp(boxName, BOX_NAME, false) == 0)
         Activate();
