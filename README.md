@@ -4,7 +4,7 @@ A [SourceMod](https://www.sourcemod.net/) plugin for [Left 4 Dead 2](https://sto
 
 This is something I'm going to work on as time goes on and don't have any release date. My main goal is to create a modular core that allows the development of separate plugins as "Boxes" that are chosen from randomly.
 
-I've been really wanting to get back into learning game development so I can create open source games in the future, but first I wanted to make a mod/plugin to Left 4 Dead 2 game servers running SourceMod.
+I've been really wanting to get back into learning game development so I can create open source games in the future, but first I wanted to make a mod/plugin for Left 4 Dead 2 game servers running SourceMod.
 
 ## Preview
 *To Do...*
@@ -96,6 +96,18 @@ l4d2pb_verbose "0"
 // Minimum: "0.000000"
 // Maximum: "0.000000"
 l4d2pb_verbose_type "0"
+```
+
+## Core Enums
+Here are some useful enums you'll need when developing your own box types.
+
+```c
+enum BoxType {
+    BOXTYPE_NONE = 0,
+    BOXTYPE_GOOD = 1,
+    BOXTYPE_MID = 2,
+    BOXTYPE_BAD = 3
+}
 ```
 
 ## Core Natives

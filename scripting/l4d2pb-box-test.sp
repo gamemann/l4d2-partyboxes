@@ -42,7 +42,7 @@ public void OnConfigsExecuted() {
     gEnabled = GetConVarBool(gCvEnabled);
     if (gCoreEnabled) {
         if (!gLoaded && gEnabled) {
-            RegisterBox(2, BOX_NAME, BOX_DISPLAY);
+            RegisterBox(BOXTYPE_MID, BOX_NAME, BOX_DISPLAY);
 
             DebugMsg(2, "Found test box not loaded. Loading now!");
 

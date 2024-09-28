@@ -1,5 +1,8 @@
 #include <sourcemod>
 
+#define PL_CORE 1
+#include <l4d2pb-core>
+
 #define PL_VERSION "1.0.0"
 
 #define BOX_MAX_TYPES 4
@@ -12,13 +15,6 @@ public Plugin myinfo = {
     version = PL_VERSION,
     url = "ModdingCommunity.com"
 };
-
-enum BoxType {
-    BOXTYPE_NONE = 0,
-    BOXTYPE_GOOD,
-    BOXTYPE_MID,
-    BOXTYPE_BAD
-}
 
 enum struct Box {
     BoxType type;
@@ -63,6 +59,8 @@ ConVar gCvMaxMidBoxes = null;
 ConVar gCvMaxBadBoxes = null;
 
 ConVar gCvEndRoundStats = null;
+
+ConVar gCvVersion = null;
 
 bool gEnabled = true;
 
@@ -141,6 +139,8 @@ public void OnPluginStart() {
 
     gCvEndRoundStats = CreateConVar("l4d2pb_end_round_stats", "1", "Whether to display stats in chat on round end.", _, true, 0.0, true, 1.0);
     HookConVarChange(gCvEndRoundStats, CVar_Changed);
+
+    gCvVersion = CreateConVar("l4d2pb_version", PL_VERSION, "The plugin's version.");
 
     // Forwards.
     gGfBoxOpened = new GlobalForward("BoxOpened", ET_Ignore, Param_Cell, Param_String, Param_Cell);
