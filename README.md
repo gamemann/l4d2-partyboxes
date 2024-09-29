@@ -292,5 +292,15 @@ The configuration file may be found at `cfg/sourcemod/plugin.l4d2pb-box-test.cfg
 l4d2pb_box_test_enabled "0"
 ```
 
+## Building
+*To Do...*
+
+## Installing
+After building the plugin's source code, copy the compiled plugin files (ending in `.smx`) to `addons/sourcemod/plugins`.
+
+Also, copy all translation files from [`translations`](./translations/) to `addons/sourcemod/translations`.
+
+Afterwards, you may restart the server/map or load the plugins manually via `sm plugins load <plugin name>` (e.g. `sm plugins load l4d2pb-core`) to load the plugins.
+
 ## Credits
 * [Christian Deacon](https://github.com/gamemann)
