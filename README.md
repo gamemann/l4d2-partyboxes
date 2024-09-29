@@ -309,9 +309,9 @@ On Windows, there isn't a Batch script created at the moment (to do...), but sim
 **NOTE** - I've included a [`tasks.json`](./vscode/tasks.json) file for Visual Studio Code that builds the current file you're working on with a task! You can bind the task execution to a keyboard shortcut to make building very easy inside of VS Code.
 
 ## Installing
-After building the plugin's source code, copy the compiled plugin files (ending in `.smx`) to `addons/sourcemod/plugins`.
+After building the plugin's source code, copy the compiled plugin files (ending in `.smx`) to the game server's `addons/sourcemod/plugins/` directory.
 
-Also, copy all translation files from [`translations`](./translations/) to `addons/sourcemod/translations`.
+Also, copy all translation files from [`translations/`](./translations/) to the game server's `addons/sourcemod/translations/` directory.
 
 Afterwards, you may restart the server/map or load the plugins manually via `sm plugins load <plugin name>` (e.g. `sm plugins load l4d2pb-core`) to load the plugins.
 
