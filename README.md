@@ -302,7 +302,7 @@ Afterwards, extract the compressed file(s) and keep note of the path to the `add
 
 On Linux, you may use the [`build.sh`](./build.sh) Bash script included in this repository to build all plugins in [`scripting/`](./scripting/). You'll want to set the `SM_DIR` environmental variable to the path to the `addons/sourcemod/scripting` directory mentioned above (by default, it's set to `/opt/sourcemod/addons/sourcemod/scripting`). 
 
-Additionally, you may set the `SRC_DIR` environment variable which is the path to plugins' source code (`$(pwd)/scripting` by default) and `BUILD_DIR` which is the directory used to store the compiled plugins (`$(pwd)/build` by default).
+Additionally, you may set the `SRC_DIR` environment variable which is the path to the plugin's source code (`$(pwd)/scripting` by default) and `BUILD_DIR` which is the directory used to store the compiled plugins (`$(pwd)/build` by default).
 
 On Windows, there isn't a Batch script created at the moment (to do...), but simply dragging the plugin's source code files inside of the `addons/sourcemod/scripting/compile.exe` should be fine. Just make sure to copy [`scripting/include/l4d2pb-core.inc`](./scripting/include/l4d2pb-core.inc) into `addons/sourcemod/scripting/include`.
 
