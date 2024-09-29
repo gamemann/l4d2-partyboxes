@@ -306,7 +306,7 @@ Additionally, you may set the `SRC_DIR` environment variable which is the path t
 
 On Windows, there isn't a Batch script created at the moment (to do...), but simply dragging the plugin's source code files inside of the `addons/sourcemod/scripting/compile.exe` should be fine. Just make sure to copy [`scripting/include/l4d2pb-core.inc`](./scripting/include/l4d2pb-core.inc) into `addons/sourcemod/scripting/include`.
 
-**NOTE** - I've included a [`tasks.json`](./vscode/tasks.json) file for Visual Studio Code that builds the current file you're working with a task! You can bind this to a keyboard shortcut to make building very easy.
+**NOTE** - I've included a [`tasks.json`](./vscode/tasks.json) file for Visual Studio Code that builds the current file you're working on with a task! You can bind the task execution to a keyboard shortcut to make building very easy inside of VS Code.
 
 ## Installing
 After building the plugin's source code, copy the compiled plugin files (ending in `.smx`) to `addons/sourcemod/plugins`.
