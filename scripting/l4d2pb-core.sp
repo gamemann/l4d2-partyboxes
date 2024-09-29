@@ -162,6 +162,8 @@ public void OnPluginStart() {
 
     // Commands.
     RegConsoleCmd("sm_l4d2pb_stats", Command_Stats, "Prints stats and information.");
+
+    RegAdminCmd("sm_l4d2pb_open", Command_OpenBox, ADMFLAG_ROOT, "Opens a specified box.");
     
     // Load translactions file.
     LoadTranslations("l4d2pb.phrases.txt");
@@ -247,6 +249,33 @@ public Action Command_Stats(int client, int args) {
     int clTotalBoxes = gClGoodBoxesOpened[client] + gClMidBoxesOpened[client] + gClBadBoxesOpened[client];
 
     PrintToChat(client, "%t A total of %d boxes have been opened so far. You've opened a total of %d boxes during this round/map. Total boxes => %d.", "Tag", totalBoxes, clTotalBoxes, gBoxes.Length);
+
+    return Plugin_Handled;
+}
+
+public Action Command_OpenBox(int client, int args) {
+    // Make sure we have a box name.
+    if (args < 1) {
+        PrintToChat(client, "Usage: sm_l4d2pb_open <box name>");
+
+        return Plugin_Handled;
+    }
+
+    // Retrieve the box name.
+    char boxName[MAX_NAME_LENGTH];
+
+    GetCmdArg(1, boxName, sizeof(boxName));
+
+    PrintToChat(client, "%t Opening box '%s' manually!", "Tag", boxName);
+
+    // Call box opened forward with specified box name.
+    Call_StartForward(gGfBoxOpened);
+
+    Call_PushCell(0);
+    Call_PushString(boxName);
+    Call_PushCell(GetClientUserId(client));
+
+    Call_Finish();
 
     return Plugin_Handled;
 }
