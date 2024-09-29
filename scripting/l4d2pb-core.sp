@@ -1,4 +1,5 @@
 #include <sourcemod>
+#include <sdktools>
 
 #define PL_CORE
 #include <l4d2pb-core>
@@ -44,6 +45,7 @@ enum MaxType {
     MAX_MAP
 }
 
+// ConVars
 ConVar gCvEnabled = null;
 
 ConVar gCvVerbose = null;
@@ -51,6 +53,8 @@ ConVar gCvVerboseType = null;
 
 ConVar gCvAnnounce = null;
 ConVar gCvAnnounceType = null;
+
+ConVar gCvRemoveOpened = null;
 
 ConVar gCvNoneChance = null;
 ConVar gCvGoodChance = null;
@@ -64,29 +68,35 @@ ConVar gCvMaxBadBoxes = null;
 
 ConVar gCvEndRoundStats = null;
 
-bool gEnabled = true;
+// ConVar values
+bool gEnabled;
 
-int gVerbose = 0;
-int gVerboseType = view_as<int>(MSG_CHAT);
+int gVerbose;
+int gVerboseType;
 
-bool gAnnounce = true;
-int gAnnounceType = view_as<int>(MSG_HINT);
+bool gAnnounce;
+int gAnnounceType;
 
-float gNoneChance = 0.10;
-float gGoodChance = 0.15;
-float gMidChance = 0.50;
-float gBadChance = 0.25;
+bool gRemoveOpened;
 
-int gMaxType = view_as<int>(MAX_ROUND);
-int gMaxGoodBoxes = -1;
-int gMaxMidBoxes = -1;
-int gMaxBadBoxes = -1;
+float gNoneChance;
+float gGoodChance;
+float gMidChance;
+float gBadChance;
 
-bool gEndRoundStats = true;
+int gMaxType;
+int gMaxGoodBoxes;
+int gMaxMidBoxes;
+int gMaxBadBoxes;
 
+bool gEndRoundStats;
+
+// Forwards
 GlobalForward gGfBoxOpened;
 
+// Other global variables
 ArrayList gBoxes;
+BoxType gLastBoxType = BOXTYPE_NONE;
 
 public APLRes AskPluginLoad2(Handle hdl, bool late, char[] err, int errMax) {
     RegPluginLibrary("l4d2pb");
@@ -123,6 +133,9 @@ public void OnPluginStart() {
 
     gCvAnnounceType = CreateConVar("l4d2pb_announce_type", "3", "What type of printing to do for announcing. 0 = chat. 1 = server console. 2 = client console. 3 = hint.", _, true, 0.0);
     HookConVarChange(gCvAnnounceType, CVar_Changed);
+
+    gCvRemoveOpened = CreateConVar("l4d2pb_remove_opened", "1", "If 1, any boxes that are opened (and not none type) are removed immediately when opened.", _, true, 0.0, true, 1.0);
+    HookConVarChange(gCvRemoveOpened, CVar_Changed);
 
     gCvNoneChance = CreateConVar("l4d2pb_chance_none", "0.10", "The chances of getting no fun boxes when opened.", _, true, 0.0, true, 1.0);
     HookConVarChange(gCvNoneChance, CVar_Changed);
@@ -182,6 +195,8 @@ public void OnConfigsExecuted() {
 
     gAnnounce = GetConVarBool(gCvAnnounce);
     gAnnounceType = GetConVarInt(gCvAnnounceType);
+
+    gRemoveOpened = GetConVarBool(gCvRemoveOpened);
     
     gNoneChance = GetConVarFloat(gCvNoneChance);
     gGoodChance = GetConVarFloat(gCvGoodChance);
@@ -476,6 +491,9 @@ public Action Event_UpgradePackUsed(Handle ev, const char[] name, bool dontBroad
     // Get random type.
     BoxType randType = PickRandomBoxType();
 
+    // Assign last box type.
+    gLastBoxType = randType;
+
     // Increment box opened stats (global and client).
     if (randType == BOXTYPE_NONE) {
         gNoneBoxesOpened++;
@@ -540,6 +558,29 @@ public Action Event_RoundEnd(Handle ev, const char[] name, bool dontBroadcast) {
         ResetBoxCounters();
 
     return Plugin_Continue;
+}
+
+public Action Timer_CheckBox(Handle timer, int en) {
+    // Ignore if last box type is none.
+    if (gLastBoxType == BOXTYPE_NONE)
+        return Plugin_Stop;
+
+    // Destroy entity.
+    if (IsValidEdict(en))
+        AcceptEntityInput(en, "kill");
+
+    return Plugin_Stop;
+    
+}
+
+public void OnEntityCreated(int en, const char[] className) {
+    //DebugMsg(6, "Entity created (%d) => %s", en, className);
+
+    // Check if we need to create a timer to destroy the entity if a valid box.
+    // Note - Not sure if there is a better way to do this, but the upgrade used hook doesn't contain an entity index. So I can't think of any better way.
+    if ((strcmp(className, "upgrade_ammo_incendiary", false) == 0 || strcmp(className, "upgrade_ammo_explosive", false) == 0) && gRemoveOpened)
+        CreateTimer(0.1, Timer_CheckBox, en);
+    
 }
 
 public int Native_DebugMsg(Handle pl, int paramsCnt) {

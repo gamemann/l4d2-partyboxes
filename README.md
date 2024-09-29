@@ -104,6 +104,13 @@ l4d2pb_max_mid_boxes "-1"
 // Maximum: "2.000000"
 l4d2pb_max_type "0"
 
+// If 1, any boxes that are opened (and not none type) are removed immediately when opened.
+// -
+// Default: "1"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d2pb_remove_opened "1"
+
 // The plugin's verbose level.
 // -
 // Default: "0"
