@@ -130,7 +130,7 @@ l4d2pb_version "1.0.0"
 ```
 
 ### Commands
-Here are a list of commands you may run from chat (prefixed with `!`) or console (prefixed with `sm_`).
+Here are a list of commands you may run from chat (prefixed with `!` or `/`) or console (prefixed with `sm_`).
 
 | Command | Admin Only | Arguments | Description |
 | ------- | ---------- | --------- | ----------- |
