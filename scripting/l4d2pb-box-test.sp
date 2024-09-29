@@ -37,36 +37,57 @@ public void OnPluginStart() {
     AutoExecConfig(true, "plugin.l4d2pb-box-test");
 }
 
-public void OnConfigsExecuted() {
-    gEnabled = GetConVarBool(gCvEnabled);
+stock LoadBox() {
     if (gCoreEnabled) {
-        if (!gLoaded && gEnabled) {
-            RegisterBox(BOXTYPE_MID, BOX_NAME, BOX_DISPLAY);
+        if (!gEnabled && gLoaded) {
+            L4D2PB_DebugMsg(2, "Found test box loaded, but not enabled. Unloading now!");
 
-            DebugMsg(2, "Found test box not loaded. Loading now!");
-
-            gLoaded = true;
-        } else if (gLoaded && !gEnabled) {
-            DebugMsg(1, "Found test box loaded, but not enabled. Unloading now!");
-
-            UnloadBox(BOX_NAME);
+            L4D2PB_UnloadBox(BOX_NAME);
 
             gLoaded = false;
+        } else if (gEnabled && !gLoaded) {
+            L4D2PB_DebugMsg(2, "Loading test box!");
+
+            L4D2PB_RegisterBox(BOXTYPE_MID, BOX_NAME, BOX_DISPLAY);
+
+            gLoaded = true;
         }
-    } else
-        PrintToServer("%t Warning => L4D2-PB core not loaded!");
+    }
+}
+
+stock SetCVars() {
+    gEnabled = GetConVarBool(gCvEnabled);
+
+    LoadBox();
+}
+
+public void OnConfigsExecuted() {
+    SetCVars();
+}
+
+public void L4D2PB_OnCoreCfgsLoaded() {
+    if (!gCoreEnabled)
+        gCoreEnabled = true;
+    
+    // Load box.
+    LoadBox();
+}
+
+public void L4D2PB_OnCoreUnloaded() {
+    gLoaded = false;
+    gCoreEnabled = false;
 }
 
 public void CVar_Changed(Handle cv, const char[] oldV, const char[] newV) {
-    OnConfigsExecuted();
+    SetCVars();
 }
 
 public void Activate() {
     PrintToChatAll("%t %t", "Tag", "Activated");
 }
 
-public void BoxOpened(int type, const char[] boxName, int userId) {
-    DebugMsg(4, "Got BoxOpened() event! Box name => %s. Box opener => %N", boxName, GetClientOfUserId(userId));
+public void L4D2PB_OnBoxOpened(int type, const char[] boxName, int userId) {
+    L4D2PB_DebugMsg(4, "Got BoxOpened() event! Box name => %s. Box opener => %N", boxName, GetClientOfUserId(userId));
 
     if (strcmp(boxName, BOX_NAME, false) == 0)
         Activate();

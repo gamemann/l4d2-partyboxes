@@ -94,6 +94,10 @@ bool gEndRoundStats;
 // Forwards
 GlobalForward gGfBoxOpened;
 
+GlobalForward gGfCoreCfgsLoaded;
+GlobalForward gGfCoreLoaded;
+GlobalForward gGfCoreUnloaded;
+
 // Other global variables
 ArrayList gBoxes;
 BoxType gLastBoxType = BOXTYPE_NONE;
@@ -102,10 +106,10 @@ public APLRes AskPluginLoad2(Handle hdl, bool late, char[] err, int errMax) {
     RegPluginLibrary("l4d2pb");
 
     // Natives.
-    CreateNative("DebugMsg", Native_DebugMsg);
+    CreateNative("L4D2PB_DebugMsg", Native_DebugMsg);
 
-    CreateNative("RegisterBox", Native_RegisterBox);
-    CreateNative("UnloadBox", Native_UnloadBox);
+    CreateNative("L4D2PB_RegisterBox", Native_RegisterBox);
+    CreateNative("L4D2PB_UnloadBox", Native_UnloadBox);
 
     return APLRes_Success;
 }
@@ -167,7 +171,11 @@ public void OnPluginStart() {
     CreateConVar("l4d2pb_version", PL_VERSION, "The plugin's version.");
 
     // Forwards.
-    gGfBoxOpened = new GlobalForward("BoxOpened", ET_Ignore, Param_Cell, Param_String, Param_Cell);
+    gGfCoreLoaded = new GlobalForward("L4D2PB_OnCoreLoaded", ET_Ignore);
+    gGfCoreCfgsLoaded = new GlobalForward("L4D2PB_OnCoreCfgsLoaded", ET_Ignore);
+    gGfCoreUnloaded = new GlobalForward("L4D2PB_OnCoreUnloaded", ET_Ignore);
+
+    gGfBoxOpened = new GlobalForward("L4D2PB_OnBoxOpened", ET_Ignore, Param_Cell, Param_String, Param_Cell);
 
     // Events.
     HookEvent("upgrade_pack_used", Event_UpgradePackUsed);
@@ -185,9 +193,19 @@ public void OnPluginStart() {
     AutoExecConfig(true, "plugin.l4d2pb");
 
     gBoxes = new ArrayList(sizeof(Box));
+
+    // Call L4D2PB_OnCoreLoaded().
+    Call_StartForward(gGfCoreLoaded);
+    Call_Finish();
 }
 
-public void OnConfigsExecuted() {
+public void OnPluginEnd() {
+    // Call L4D2PB_OnCoreUnloaded().
+    Call_StartForward(gGfCoreUnloaded);
+    Call_Finish();
+}
+
+stock void SetCVars() {
     gEnabled = GetConVarBool(gCvEnabled);
 
     gVerbose = GetConVarInt(gCvVerbose);
@@ -211,8 +229,17 @@ public void OnConfigsExecuted() {
     gEndRoundStats = GetConVarBool(gCvEndRoundStats);
 }
 
+public void OnConfigsExecuted() {
+    // Set convar values.
+    SetCVars();
+
+    // Call L4D2PB_OnCoreCfgsLoaded();
+    Call_StartForward(gGfCoreCfgsLoaded);
+    Call_Finish();
+}
+
 public void CVar_Changed(ConVar cv, const char[] oldV, const char[] newV) {
-    OnConfigsExecuted();
+    SetCVars();
 }
 
 stock void DebugMsg(int req, const char[] msg, any...) {

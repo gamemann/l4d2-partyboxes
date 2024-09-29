@@ -20,7 +20,7 @@ enum BoxType {
  *
  * @return void
  */
-native void DebugMsg(int req, const char[] msg, any...);
+native void L4D2PB_DebugMsg(int req, const char[] msg, any...);
 
 /**
  * Registers a box to core and adds it to the box rotation.
@@ -31,7 +31,7 @@ native void DebugMsg(int req, const char[] msg, any...);
  *
  * @return 0 on success or 1 on error.
  */
-native int RegisterBox(BoxType type, const char[] name, const char[] display);
+native int L4D2PB_RegisterBox(BoxType type, const char[] name, const char[] display);
 
 /**
  * Unloads a box from the core.
@@ -40,5 +40,5 @@ native int RegisterBox(BoxType type, const char[] name, const char[] display);
  *
  * @return 0 on success or 1 on error.
  */
-native int UnloadBox(const char[] name);
+native int L4D2PB_UnloadBox(const char[] name);
 #endif

@@ -67,7 +67,25 @@ public void OnPluginStart() {
     AutoExecConfig(true, "plugin.l4d2pb-box-dmg");
 }
 
-public void OnConfigsExecuted() {
+stock LoadBox() {
+    if (gCoreEnabled) {
+        if (!gEnabled && gLoaded) {
+            L4D2PB_DebugMsg(1, "Found damage box loaded, but not enabled. Unloading now!");
+
+            L4D2PB_UnloadBox(BOX_NAME);
+
+            gLoaded = false;
+        } else if (gEnabled && !gLoaded) {
+            L4D2PB_RegisterBox(BOXTYPE_BAD, BOX_NAME, BOX_DISPLAY);
+
+            L4D2PB_DebugMsg(2, "Found damage box not loaded. Loading now!");
+
+            gLoaded = true;
+        }
+    }
+}
+
+stock SetCVars() {
     gEnabled = GetConVarBool(gCvEnabled);
 
     gRadiusMin = GetConVarFloat(gCvRadiusMin);
@@ -77,26 +95,29 @@ public void OnConfigsExecuted() {
     gDmgMax = GetConVarFloat(gCvDmgMax);
     gDmgRandPerPlayer = GetConVarBool(gCvDmgRandPerPlayer);
 
-    if (gCoreEnabled) {
-        if (!gLoaded && gEnabled) {
-            RegisterBox(BOXTYPE_BAD, BOX_NAME, BOX_DISPLAY);
+    LoadBox();
+}
 
-            DebugMsg(2, "Found damage box not loaded. Loading now!");
+public void OnConfigsExecuted() {
+    // Set ConVars.
+    SetCVars();
+}
 
-            gLoaded = true;
-        } else if (gLoaded && !gEnabled) {
-            DebugMsg(1, "Found damage box loaded, but not enabled. Unloading now!");
+public void L4D2PB_OnCoreCfgsLoaded() {
+    if (!gCoreEnabled)
+        gCoreEnabled = true;
+    
+    // Load box.
+    LoadBox();
+}
 
-            UnloadBox(BOX_NAME);
-
-            gLoaded = false;
-        }
-    } else
-        PrintToServer("%t Warning => L4D2-PB core not loaded!");
+public void L4D2PB_OnCoreUnloaded() {
+    gLoaded = false;
+    gCoreEnabled = false;
 }
 
 public void CVar_Changed(Handle cv, const char[] oldV, const char[] newV) {
-    OnConfigsExecuted();
+    SetCVars();
 }
 
 stock void Activate(int userId) {
@@ -115,7 +136,7 @@ stock void Activate(int userId) {
 
     // Check if we need to damage others.
     if (radius > 0.0) {
-        DebugMsg(3, "Using damage radius %f", radius);
+        L4D2PB_DebugMsg(3, "Using damage radius %f", radius);
 
         // Get radius squared.
         float radiusSq = radius * radius;
@@ -124,7 +145,7 @@ stock void Activate(int userId) {
         float tPos[3];
         GetClientAbsOrigin(client, tPos);
 
-        DebugMsg(4, "Using target user position for damage: %f, %f, %f", tPos[0], tPos[1], tPos[2]);
+        L4D2PB_DebugMsg(4, "Using target user position for damage: %f, %f, %f", tPos[0], tPos[1], tPos[2]);
 
         for (int i = 1; i < MaxClients; i++) {
             if (i == client || !IsClientInGame(i) || !IsPlayerAlive(i))
@@ -141,7 +162,7 @@ stock void Activate(int userId) {
 
             float distSq = dx * dx + dy * dy + dz * dz;
 
-            DebugMsg(5, "Checking against target position for damage: %f %f %f (%f <= %f)", pos[0], pos[1], pos[2], distSq, radiusSq);
+            L4D2PB_DebugMsg(5, "Checking against target position for damage: %f %f %f (%f <= %f)", pos[0], pos[1], pos[2], distSq, radiusSq);
             
             // Check if user is within radius.
             if (distSq <= radiusSq) {
@@ -155,7 +176,7 @@ stock void Activate(int userId) {
     }
 }
 
-public void BoxOpened(int type, const char[] boxName, int userId) {
+public void L4D2PB_OnBoxOpened(int type, const char[] boxName, int userId) {
     if (strcmp(boxName, BOX_NAME, false) == 0)
         Activate(userId);
 }

@@ -162,18 +162,18 @@ Here are a list of core natives you may use when developing your own box types. 
  *
  * @return void
  */
-native void DebugMsg(int req, const char[] msg, any...);
+native void L4D2PB_DebugMsg(int req, const char[] msg, any...);
 
 /**
  * Registers a box to core and adds it to the box rotation.
  *
- * @param type      The box type (1 = Good, 2 = Mid, 3 = Bad))
+ * @param type      The box type (BoxType enum).
  * @param name      A short/code name for the box.
  * @param display   The box display name.      
  *
  * @return 0 on success or 1 on error.
  */
-native int RegisterBox(int type, const char[] name, const char[] display);
+native int L4D2PB_RegisterBox(BoxType type, const char[] name, const char[] display);
 
 /**
  * Unloads a box from the core.
@@ -182,13 +182,33 @@ native int RegisterBox(int type, const char[] name, const char[] display);
  *
  * @return 0 on success or 1 on error.
  */
-native int UnloadBox(const char[] name);
+native int L4D2PB_UnloadBox(const char[] name);
 ```
 
 ### Forwards
 Here are core (global) forwards you may call while developing your own box types. Take a look at [`scripting/l4d2pb-box-test.sp`](./scripting/l4d2pb-box-test.sp) for a basic example.
 
 ```c
+/**
+ * Called when the core plugin is initially loaded (in OnPluginStart()).
+ * 
+ */
+public void L4D2PB_OnCoreLoaded();
+
+/**
+ * Called when the core plugin executes its config (in OnConfigsExecuted()).
+ * 
+ * @note This is where I recommend registering a box.
+ * 
+ */
+public void L4D2PB_OnCoreCfgsLoaded();
+
+/**
+ * Called when the core plugin is unloaded (in OnPluginEnd()).
+ * 
+ */
+public void L4D2PB_OnCoreUnloaded();
+
 /**
  * Called when a box is opened.
  * 
@@ -197,7 +217,7 @@ Here are core (global) forwards you may call while developing your own box types
  * @param userid    The user ID who opened the box.
  * 
  */
-public void BoxOpened(int type, const char[] boxName, int userId);
+public void L4D2PB_BoxOpened(int type, const char[] boxName, int userId);
 ```
 
 ## Provided Boxes
