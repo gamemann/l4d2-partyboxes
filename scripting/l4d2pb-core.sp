@@ -197,6 +197,9 @@ public void OnPluginStart() {
     // Call L4D2PB_OnCoreLoaded().
     Call_StartForward(gGfCoreLoaded);
     Call_Finish();
+
+    // Reset box counters now so they start at 0.
+    ResetBoxCounters();
 }
 
 public void OnPluginEnd() {
@@ -270,7 +273,7 @@ stock void ResetBoxCounters() {
     gMidBoxesOpened = 0;
     gBadBoxesOpened = 0;
 
-    for (int i = 0; i < MaxClients; i++) {
+    for (int i = 1; i <= MaxClients; i++) {
         gClNoneBoxesOpened[i] = 0;
         gClGoodBoxesOpened[i] = 0;
         gClMidBoxesOpened[i] = 0;
