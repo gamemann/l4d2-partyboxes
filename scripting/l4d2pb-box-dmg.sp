@@ -26,6 +26,7 @@ ConVar gCvRadiusMax = null;
 
 ConVar gCvDmgMin = null;
 ConVar gCvDmgMax = null;
+ConVar gCvDmgRandPerPlayer = null;
 
 bool gEnabled = true;
 
@@ -34,6 +35,7 @@ float gRadiusMax = 500.0;
 
 float gDmgMin = 5.0;
 float gDmgMax = 100.0;
+bool gDmgRandPerPlayer = true;
 
 public void OnLibraryAdded(const char[] name) {
 	if (StrEqual(name, "l4d2pb"))
@@ -56,6 +58,9 @@ public void OnPluginStart() {
     gCvDmgMax = CreateConVar("l4d2pb_box_dmg_max", "100.0", "The maximum damage to apply.", _, true, 1.0);
     HookConVarChange(gCvDmgMax, CVar_Changed);
 
+    gCvDmgRandPerPlayer = CreateConVar("l4d2pb_box_dmg_rand_per_player", "1", "If 1, when damage is applied, each player affected receives a random damage count.", _, true, 0.0, true, 1.0);
+    HookConVarChange(gCvDmgRandPerPlayer, CVar_Changed);
+
     LoadTranslations("l4d2pb.phrases.txt");
     LoadTranslations("l4d2pb-box-dmg.phrases.txt");
 
@@ -70,6 +75,7 @@ public void OnConfigsExecuted() {
 
     gDmgMin = GetConVarFloat(gCvDmgMin);
     gDmgMax = GetConVarFloat(gCvDmgMax);
+    gDmgRandPerPlayer = GetConVarBool(gCvDmgRandPerPlayer);
 
     if (gCoreEnabled) {
         if (!gLoaded && gEnabled) {
@@ -139,8 +145,9 @@ stock void Activate(int userId) {
             
             // Check if user is within radius.
             if (distSq <= radiusSq) {
-                // Randomize damage again.
-                dmg = GetRandomFloat(gDmgMin, gDmgMax);
+                // Randomize damage again if enabled.
+                if (gDmgRandPerPlayer)
+                    dmg = GetRandomFloat(gDmgMin, gDmgMax);
 
                 SDKHooks_TakeDamage(i, client, client, dmg, DMG_BULLET, -1, NULL_VECTOR, NULL_VECTOR, false);
             }
