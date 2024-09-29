@@ -6,13 +6,15 @@ My main goal is to create a modular core plugin that handles things like picking
 
 **NOTE** - This project is a big **work-in-progress** and I'm also pretty rusty in SourcePawn since I haven't utilized it much in recent years so I'm sure there are many things that can be improved on (feel free to make a PR!).
 
+## Preview
+![Test Box](./preview/test-box.gif)
+
+![Damage Box](./preview/dmg-box.gif)
+
 ## My Motives
 I've been occassionally playing a custom mega (24 players) COOP game server in Left 4 Dead 2 for almost a year now ([Core-SS](https://core-ss.org/forum/)) and I've had a lot of fun! The server runs a custom plugin very similar to this plugin and since I've been wanting to get back into [SourcePawn](https://wiki.alliedmods.net/Introduction_to_SourcePawn_1.7), I figured I'd create my own open source plugin (to my knowledge, the plugin they use isn't open source, but even if it was, I really wanted to make my own to get back into SourcePawn again).
 
 Additionally, I've been really wanting to get back into learning game development so I can create open source 3D games in the future and I really believe creating plugins like this and modding in general can really help with understanding game development further!
-
-## Preview
-*To Do...*
 
 ## Core
 ### Config & ConVars
