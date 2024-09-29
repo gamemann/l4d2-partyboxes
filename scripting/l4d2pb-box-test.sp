@@ -22,6 +22,12 @@ bool gCoreEnabled = false;
 
 bool gLoaded = false;
 
+public APLRes AskPluginLoad2(Handle hdl, bool late, char[] err, int errMax) {
+    RegPluginLibrary("l4d2pb-box-test");
+
+    return APLRes_Success;
+}
+
 public void OnLibraryAdded(const char[] name) {
 	if (StrEqual(name, "l4d2pb"))
         gCoreEnabled = true;

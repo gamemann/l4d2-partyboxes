@@ -37,6 +37,12 @@ float gDmgMin = 5.0;
 float gDmgMax = 100.0;
 bool gDmgRandPerPlayer = true;
 
+public APLRes AskPluginLoad2(Handle hdl, bool late, char[] err, int errMax) {
+    RegPluginLibrary("l4d2pb-box-dmg");
+
+    return APLRes_Success;
+}
+
 public void OnLibraryAdded(const char[] name) {
 	if (StrEqual(name, "l4d2pb"))
         gCoreEnabled = true;
