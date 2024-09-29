@@ -389,7 +389,7 @@ On Windows, there isn't a Batch script created at the moment (to do...), but sim
 ### Using [Multi Colors](https://forums.alliedmods.net/showthread.php?t=247770)
 If you want to utilize Multi Colors inside of chat messages and such, you will need to uncomment the `#define USE_COLORS` line in the [`scripting/l4d2pb-core.sp`](./scripting/l4d2pb-core.sp#7) file and recompile.
 
-Afterwards, you should be able to utilize colors such as `{red}` inside of translations files located in [`translations/`](./translations/) directory.
+Afterwards, you should be able to utilize colors such as `{red}`, `{green}`, etc. inside of translations files located in the [`translations/`](./translations/) directory.
 
 ## Installing
 After building the plugin's source code, copy the compiled plugin files (ending in `.smx`) to the game server's `addons/sourcemod/plugins/` directory.
