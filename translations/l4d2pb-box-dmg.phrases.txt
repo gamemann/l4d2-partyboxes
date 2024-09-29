@@ -1,4 +1,8 @@
 "Phrases"
 {
-
+    "DamageAnnounce"
+    {
+        "#format"       "{1:s}, {2:f}"
+        "en"            "{1} opened a damage box that took {2} health from you!"
+    }
 }

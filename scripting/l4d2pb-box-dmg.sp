@@ -8,6 +8,8 @@
 #define BOX_NAME "damage"
 #define BOX_DISPLAY "Damage"
 
+#define DEFAULT_DAMAGE_IDX -1
+
 public Plugin myinfo = {
     name = "L4D2 Party Boxes - Box - Damage",
     author = "Christian Deacon (Gamemann)",
@@ -16,10 +18,10 @@ public Plugin myinfo = {
     url = "ModdingCommunity.com"
 };
 
-bool gCoreEnabled = false;
-bool gLoaded = false;
-
+// ConVars
 ConVar gCvEnabled = null;
+
+ConVar gCvAnnounce = null;
 
 ConVar gCvRadiusMin = null;
 ConVar gCvRadiusMax = null;
@@ -28,14 +30,33 @@ ConVar gCvDmgMin = null;
 ConVar gCvDmgMax = null;
 ConVar gCvDmgRandPerPlayer = null;
 
-bool gEnabled = true;
+ConVar gCvBypassOnTakeDamage = null;
 
-float gRadiusMin = 200.0;
-float gRadiusMax = 500.0;
+ConVar gCvUseUserAsInflictor = null;
+ConVar gCvUseUserAsAttacker = null;
+ConVar gCvUseUserPos = null;
 
-float gDmgMin = 5.0;
-float gDmgMax = 100.0;
-bool gDmgRandPerPlayer = true;
+// ConVar values
+bool gEnabled;
+
+bool gAnnounce;
+
+float gRadiusMin;
+float gRadiusMax;
+
+float gDmgMin;
+float gDmgMax;
+bool gDmgRandPerPlayer;
+
+bool gBypassOnTakeDamage;
+
+bool gUseUserAsInflictor;
+bool gUseUserAsAttacker;
+bool gUseUserPos;
+
+// Other global variables
+bool gCoreEnabled = false;
+bool gLoaded = false;
 
 public APLRes AskPluginLoad2(Handle hdl, bool late, char[] err, int errMax) {
     RegPluginLibrary("l4d2pb-box-dmg");
@@ -52,6 +73,9 @@ public void OnPluginStart() {
     gCvEnabled = CreateConVar("l4d2pb_box_dmg_enabled", "1", "Enables the damage box", _, true, 0.0, true, 1.0);
     HookConVarChange(gCvEnabled, CVar_Changed);
 
+    gCvAnnounce = CreateConVar("l4d2pb_box_dmg_announce", "1", "Announces to damaged players who opened the box and the amount it damaged them for.", _, true, 0.0, true, 1.0);
+    HookConVarChange(gCvAnnounce, CVar_Changed);
+
     gCvRadiusMin = CreateConVar("l4d2pb_box_dmg_radius_min", "200.0", "The mimimum radius to damage survivors in.", _, true, 0.0);
     HookConVarChange(gCvRadiusMin, CVar_Changed);
 
@@ -66,6 +90,18 @@ public void OnPluginStart() {
 
     gCvDmgRandPerPlayer = CreateConVar("l4d2pb_box_dmg_rand_per_player", "1", "If 1, when damage is applied, each player affected receives a random damage count.", _, true, 0.0, true, 1.0);
     HookConVarChange(gCvDmgRandPerPlayer, CVar_Changed);
+
+    gCvBypassOnTakeDamage = CreateConVar("l4d2pb_box_dmg_bypass_ontakedamage", "0", "If 1, bypasses the SDKHooks_OnTakeDamage() hook when damaging users.", _, true, 0.0, true, 1.0);
+    HookConVarChange(gCvBypassOnTakeDamage, CVar_Changed);
+
+    gCvUseUserAsInflictor = CreateConVar("l4d2pb_box_dmg_use_user_as_inflictor", "1", "If 1, the user who opened the damage box is used as the inflictor when damaging players.", _, true, 0.0, true, 1.0);
+    HookConVarChange(gCvUseUserAsInflictor, CVar_Changed);
+
+    gCvUseUserAsAttacker = CreateConVar("l4d2pb_box_dmg_use_user_as_attacker", "1", "If 1, the uesr who opened the damage box is used as the attacker when damaging players.", _, true, 0.0, true, 1.0);
+    HookConVarChange(gCvUseUserAsAttacker, CVar_Changed);
+
+    gCvUseUserPos = CreateConVar("l4d2pb_box_dmg_use_user_pos", "0", "If 1, uses the position of who opened the box as the damage position.", _, true, 0.0, true, 1.0);
+    HookConVarChange(gCvUseUserPos, CVar_Changed);
 
     CreateConVar("l4d2pb_box_dmg_version", PL_VERSION, "The damage box's version.");
 
@@ -96,12 +132,20 @@ stock LoadBox() {
 stock SetCVars() {
     gEnabled = GetConVarBool(gCvEnabled);
 
+    gAnnounce = GetConVarBool(gCvAnnounce);
+
     gRadiusMin = GetConVarFloat(gCvRadiusMin);
     gRadiusMax = GetConVarFloat(gCvRadiusMax);
 
     gDmgMin = GetConVarFloat(gCvDmgMin);
     gDmgMax = GetConVarFloat(gCvDmgMax);
     gDmgRandPerPlayer = GetConVarBool(gCvDmgRandPerPlayer);
+
+    gBypassOnTakeDamage = GetConVarBool(gCvBypassOnTakeDamage);
+
+    gUseUserAsInflictor = GetConVarBool(gCvUseUserAsInflictor);
+    gUseUserAsAttacker = GetConVarBool(gCvUseUserAsAttacker);
+    gUseUserPos = GetConVarBool(gCvUseUserPos);
 
     LoadBox();
 }
@@ -146,6 +190,23 @@ stock void Activate(int userId) {
     if (radius > 0.0) {
         L4D2PB_DebugMsg(3, "Using damage radius %f", radius);
 
+        // Get user name.
+        char userName[MAX_NAME_LENGTH];
+
+        if (gAnnounce)
+            GetClientName(client, userName, sizeof(userName));
+
+        // Get inflictor and attacker.
+        int inflictor = DEFAULT_DAMAGE_IDX;
+
+        if (gUseUserAsInflictor)
+            inflictor = client;
+
+        int attacker = DEFAULT_DAMAGE_IDX;
+
+        if (gUseUserAsAttacker)
+            attacker = client;
+
         // Get radius squared.
         float radiusSq = radius * radius;
 
@@ -178,7 +239,11 @@ stock void Activate(int userId) {
                 if (gDmgRandPerPlayer)
                     dmg = GetRandomFloat(gDmgMin, gDmgMax);
 
-                SDKHooks_TakeDamage(i, client, client, dmg, DMG_BULLET, -1, NULL_VECTOR, NULL_VECTOR, false);
+                SDKHooks_TakeDamage(i, inflictor, attacker, dmg, DMG_BULLET, -1, NULL_VECTOR, gUseUserPos ? tPos : NULL_VECTOR, gBypassOnTakeDamage);
+
+                // Check for announce.
+                if (gAnnounce)
+                    PrintToChat(i, "%t %t", "Tag", "DamageAnnounce", userName, dmg);
             }
         }
     }
