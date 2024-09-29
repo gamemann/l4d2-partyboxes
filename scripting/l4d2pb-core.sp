@@ -112,16 +112,16 @@ public void OnPluginStart() {
     gCvEnabled = CreateConVar("l4d2pb_enabled", "1", "Enables or disables L4D2 Party Boxes plugin.", _, true, 0.0, true, 1.0);
     HookConVarChange(gCvEnabled, CVar_Changed);
 
-    gCvVerbose = CreateConVar("l4d2pb_verbose", "0", "The plugin's verbose level.", _, true, 0.0, true, 5.0);
+    gCvVerbose = CreateConVar("l4d2pb_verbose", "0", "The plugin's verbose level.", _, true, 0.0);
     HookConVarChange(gCvVerbose, CVar_Changed);
 
-    gCvVerboseType = CreateConVar("l4d2pb_verbose_type", "0", "The type of verbose messages. 0 = prints to chat. 1 = prints to server console. 2 = prints to client's console.", _, true, 0.0, true, view_as<float>(MSG_MAX_TYPES));
+    gCvVerboseType = CreateConVar("l4d2pb_verbose_type", "0", "The type of verbose messages. 0 = prints to chat. 1 = prints to server console. 2 = prints to client's console.", _, true, 0.0);
     HookConVarChange(gCvVerboseType, CVar_Changed);
 
     gCvAnnounce = CreateConVar("l4d2pb_announce", "1", "Whether to announce who opens boxes.", _, true, 0.0, true, 1.0);
     HookConVarChange(gCvAnnounce, CVar_Changed);
 
-    gCvAnnounceType = CreateConVar("l4d2pb_announce_type", "3", "What type of printing to do for announcing. 0 = chat. 1 = server console. 2 = client console. 3 = hint.", _, true, 0.0, true, view_as<float>(MSG_MAX_TYPES));
+    gCvAnnounceType = CreateConVar("l4d2pb_announce_type", "3", "What type of printing to do for announcing. 0 = chat. 1 = server console. 2 = client console. 3 = hint.", _, true, 0.0);
     HookConVarChange(gCvAnnounceType, CVar_Changed);
 
     gCvNoneChance = CreateConVar("l4d2pb_chance_none", "0.10", "The chances of getting no fun boxes when opened.", _, true, 0.0, true, 1.0);
@@ -174,28 +174,6 @@ public void OnPluginStart() {
     gBoxes = new ArrayList(sizeof(Box));
 }
 
-stock void DebugMsg(int req, const char[] msg, any...) {
-    if (req > gVerbose)
-        return;
-
-    // We need to format the message.
-    int len = strlen(msg) + 255;
-    char[] fMsg = new char[len];
-
-    VFormat(fMsg, len, msg, 3);
-
-    switch (view_as<MsgType>(gVerboseType)) {
-        case MSG_CHAT:
-            PrintToChatAll("%t %s", "Tag", fMsg);
-
-        case MSG_CONSOLE:
-            PrintToConsoleAll("%t %s", "Tag", fMsg);
-
-        case MSG_SERVER:
-            PrintToServer("%t %s", "Tag", fMsg);
-    }
-}
-
 public void OnConfigsExecuted() {
     gEnabled = GetConVarBool(gCvEnabled);
 
@@ -222,6 +200,28 @@ public void CVar_Changed(ConVar cv, const char[] oldV, const char[] newV) {
     OnConfigsExecuted();
 }
 
+stock void DebugMsg(int req, const char[] msg, any...) {
+    if (req > gVerbose)
+        return;
+
+    // We need to format the message.
+    int len = strlen(msg) + 255;
+    char[] fMsg = new char[len];
+
+    VFormat(fMsg, len, msg, 3);
+
+    switch (view_as<MsgType>(gVerboseType)) {
+        case MSG_CHAT:
+            PrintToChatAll("%t %s", "Tag", fMsg);
+
+        case MSG_CONSOLE:
+            PrintToConsoleAll("%t %s", "Tag", fMsg);
+
+        case MSG_SERVER:
+            PrintToServer("%t %s", "Tag", fMsg);
+    }
+}
+
 stock void ResetBoxCounters() {
     gNoneBoxesOpened = 0;
     gGoodBoxesOpened = 0;
@@ -244,45 +244,43 @@ stock void PrintStats() {
     PrintToChatAll("%t A total of %d boxes were opened! Good boxes => %d. Mid boxes => %d. Bad boxes => %d.", "Tag", totalBoxes, gGoodBoxesOpened, gMidBoxesOpened, gBadBoxesOpened);
 }
 
-public Action Command_Stats(int client, int args) {
-    int totalBoxes = gGoodBoxesOpened + gMidBoxesOpened + gBadBoxesOpened;
-    int clTotalBoxes = gClGoodBoxesOpened[client] + gClMidBoxesOpened[client] + gClBadBoxesOpened[client];
+stock void AnnounceBox(int client, Box box) {
+    char msg[256];
 
-    PrintToChat(client, "%t A total of %d boxes have been opened so far. You've opened a total of %d boxes during this round/map. Total boxes => %d.", "Tag", totalBoxes, clTotalBoxes, gBoxes.Length);
+    Format(msg, sizeof(msg), "%N opened the '%s' box!", client, box.display);
 
-    return Plugin_Handled;
-}
+    switch (view_as<MsgType>(gAnnounceType)) {
+        case MSG_CHAT:
+            PrintToChatAll("%t %s", "Tag", msg);
 
-public Action Command_OpenBox(int client, int args) {
-    // Make sure we have a box name.
-    if (args < 1) {
-        PrintToChat(client, "Usage: sm_l4d2pb_open <box name>");
+        case MSG_SERVER:
+            PrintToServer("%t %s", "Tag", msg);
 
-        return Plugin_Handled;
+        case MSG_CONSOLE:
+            PrintToConsoleAll("%t %s", "Tag", msg);
+
+        case MSG_HINT:
+            PrintHintTextToAll("%s", msg);
     }
-
-    // Retrieve the box name.
-    char boxName[MAX_NAME_LENGTH];
-
-    GetCmdArg(1, boxName, sizeof(boxName));
-
-    PrintToChat(client, "%t Opening box '%s' manually!", "Tag", boxName);
-
-    // Call box opened forward with specified box name.
-    Call_StartForward(gGfBoxOpened);
-
-    Call_PushCell(0);
-    Call_PushString(boxName);
-    Call_PushCell(GetClientUserId(client));
-
-    Call_Finish();
-
-    return Plugin_Handled;
 }
 
-public void OnMapStart() {
-    // We need to reset everything regardless.
-    ResetBoxCounters();
+stock Box GetBox(const char[] name) {
+    Box ret;
+
+    // Loop through all boxes and see if we find box.
+    for (int i = 0; i < gBoxes.Length; i++) {
+        Box cur;
+
+        gBoxes.GetArray(i, cur);
+
+        if (strcmp(cur.name, name, false) == 0) {
+            ret = cur;
+
+            break;
+        }
+    }
+    
+    return ret;
 }
 
 stock int BoxGetIdx(const char[] name) {
@@ -400,6 +398,57 @@ stock Box PickRandomBox(BoxType type) {
     return ret;
 }
 
+public Action Command_Stats(int client, int args) {
+    int totalBoxes = gGoodBoxesOpened + gMidBoxesOpened + gBadBoxesOpened;
+    int clTotalBoxes = gClGoodBoxesOpened[client] + gClMidBoxesOpened[client] + gClBadBoxesOpened[client];
+
+    PrintToChat(client, "%t A total of %d boxes have been opened so far. You've opened a total of %d boxes during this round/map. Total boxes => %d.", "Tag", totalBoxes, clTotalBoxes, gBoxes.Length);
+
+    return Plugin_Handled;
+}
+
+public Action Command_OpenBox(int client, int args) {
+    // Make sure we have a box name.
+    if (args < 1) {
+        PrintToChat(client, "Usage: sm_l4d2pb_open <box name>");
+
+        return Plugin_Handled;
+    }
+
+    // Retrieve the box name.
+    char boxName[MAX_NAME_LENGTH];
+
+    GetCmdArg(1, boxName, sizeof(boxName));
+
+    PrintToChat(client, "%t Opening box '%s' manually!", "Tag", boxName);
+
+    // Call box opened forward with specified box name.
+    Call_StartForward(gGfBoxOpened);
+
+    Call_PushCell(0);
+    Call_PushString(boxName);
+    Call_PushCell(GetClientUserId(client));
+
+    Call_Finish();
+
+    // Check for announce.
+    if (gAnnounce) {
+        // First get box to pass to announce.
+        Box box;
+        box = GetBox(boxName);
+        
+        if (box.type != BOXTYPE_NONE)
+            AnnounceBox(client, box);
+    }
+
+    return Plugin_Handled;
+}
+
+public void OnMapStart() {
+    // We need to reset everything regardless.
+    ResetBoxCounters();
+}
+
 public Action Event_UpgradePackUsed(Handle ev, const char[] name, bool dontBroadcast) {
     // Check if plugin is enabled.
     if (!gEnabled)
@@ -464,25 +513,8 @@ public Action Event_UpgradePackUsed(Handle ev, const char[] name, bool dontBroad
     }
 
     // Check for announce.
-    if (gAnnounce && IsClientInGame(client)) {
-        char msg[256];
-
-        Format(msg, sizeof(msg), "%N opened the '%s' box!", client, randBox.display);
-
-        switch (view_as<MsgType>(gAnnounceType)) {
-            case MSG_CHAT:
-                PrintToChatAll("%t %s", "Tag", msg);
-
-            case MSG_SERVER:
-                PrintToServer("%t %s", "Tag", msg);
-
-            case MSG_CONSOLE:
-                PrintToConsoleAll("%t %s", "Tag", msg);
-
-            case MSG_HINT:
-                PrintHintTextToAll("%s", msg);
-        }
-    }
+    if (gAnnounce)
+        AnnounceBox(client, randBox);
 
     // Call box opened forward.
     Call_StartForward(gGfBoxOpened);
