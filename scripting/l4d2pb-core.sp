@@ -1,12 +1,12 @@
 #include <sourcemod>
 
-#define PL_CORE 1
+#define PL_CORE
 #include <l4d2pb-core>
 
 #define PL_VERSION "1.0.0"
 
 #define BOX_MAX_TYPES 4
-#define MSG_MAX_TYPES 3
+#define MSG_MAX_TYPES 4
 
 public Plugin myinfo = {
     name = "L4D2 Party Boxes - Core",
@@ -33,9 +33,10 @@ int gClMidBoxesOpened[MAXPLAYERS + 1];
 int gClBadBoxesOpened[MAXPLAYERS + 1];
 
 enum MsgType {
-    VERBOSE_CHAT = 0,
-    VERBOSE_SERVER,
-    VERBOSE_CONSOLE
+    MSG_CHAT = 0,
+    MSG_SERVER,
+    MSG_CONSOLE,
+    MSG_HINT
 }
 
 enum MaxType {
@@ -47,6 +48,9 @@ ConVar gCvEnabled = null;
 
 ConVar gCvVerbose = null;
 ConVar gCvVerboseType = null;
+
+ConVar gCvAnnounce = null;
+ConVar gCvAnnounceType = null;
 
 ConVar gCvNoneChance = null;
 ConVar gCvGoodChance = null;
@@ -65,7 +69,10 @@ ConVar gCvVersion = null;
 bool gEnabled = true;
 
 int gVerbose = 0;
-int gVerboseType = view_as<int>(VERBOSE_CHAT);
+int gVerboseType = view_as<int>(MSG_CHAT);
+
+bool gAnnounce = true;
+int gAnnounceType = view_as<int>(MSG_HINT);
 
 float gNoneChance = 0.10;
 float gGoodChance = 0.15;
@@ -112,6 +119,12 @@ public void OnPluginStart() {
 
     gCvVerboseType = CreateConVar("l4d2pb_verbose_type", "0", "The type of verbose messages. 0 = prints to chat. 1 = prints to server console. 2 = prints to client's console.", _, true, 0.0, true, view_as<float>(MSG_MAX_TYPES));
     HookConVarChange(gCvVerboseType, CVar_Changed);
+
+    gCvAnnounce = CreateConVar("l4d2pb_announce", "1", "Whether to announce who opens boxes.", _, true, 0.0, true, 1.0);
+    HookConVarChange(gCvAnnounce, CVar_Changed);
+
+    gCvAnnounceType = CreateConVar("l4d2pb_announce_type", "3", "What type of printing to do for announcing. 0 = chat. 1 = server console. 2 = client console. 3 = hint.", _, true, 0.0, true, view_as<float>(MSG_MAX_TYPES));
+    HookConVarChange(gCvAnnounceType, CVar_Changed);
 
     gCvNoneChance = CreateConVar("l4d2pb_chance_none", "0.10", "The chances of getting no fun boxes when opened.", _, true, 0.0, true, 1.0);
     HookConVarChange(gCvNoneChance, CVar_Changed);
@@ -172,13 +185,13 @@ stock void DebugMsg(int req, const char[] msg, any...) {
     VFormat(fMsg, len, msg, 3);
 
     switch (view_as<MsgType>(gVerboseType)) {
-        case VERBOSE_CHAT:
+        case MSG_CHAT:
             PrintToChatAll("%t %s", "Tag", fMsg);
 
-        case VERBOSE_CONSOLE:
+        case MSG_CONSOLE:
             PrintToConsoleAll("%t %s", "Tag", fMsg);
 
-        case VERBOSE_SERVER:
+        case MSG_SERVER:
             PrintToServer("%t %s", "Tag", fMsg);
     }
 }
@@ -188,6 +201,9 @@ public void OnConfigsExecuted() {
 
     gVerbose = GetConVarInt(gCvVerbose);
     gVerboseType = GetConVarInt(gCvVerboseType);
+
+    gAnnounce = GetConVarBool(gCvAnnounce);
+    gAnnounceType = GetConVarInt(gCvAnnounceType);
     
     gNoneChance = GetConVarFloat(gCvNoneChance);
     gGoodChance = GetConVarFloat(gCvGoodChance);
@@ -375,30 +391,71 @@ public Action Event_UpgradePackUsed(Handle ev, const char[] name, bool dontBroad
         return Plugin_Continue;
     }
 
+    // Get user ID.
+    int userId = GetEventInt(ev, "userid", -1);
+
+    // Get client index.
+    int client = GetClientOfUserId(userId);
+
     // Get random type.
     BoxType randType = PickRandomBoxType();
 
+    // Increment box opened stats (global and client).
+    if (randType == BOXTYPE_NONE) {
+        gNoneBoxesOpened++;
+        gClNoneBoxesOpened[client]++;
+    } else if (randType == BOXTYPE_GOOD) {
+        gGoodBoxesOpened++;
+        gClGoodBoxesOpened[client]++;
+    } else if (randType == BOXTYPE_MID) {
+        gMidBoxesOpened++;
+        gClMidBoxesOpened[client]++;
+    } else if (randType == BOXTYPE_BAD) {
+        gBadBoxesOpened++;
+        gClBadBoxesOpened[client]++;
+    }
+
     DebugMsg(3, "Upgrade box used and box type == %d!", view_as<int>(randType));
 
+    // Check for none box.
     if (randType == BOXTYPE_NONE)
         return Plugin_Continue;
 
-    // Select random box from type.
+    // Select random box from type if we don't have a none box.
     Box randBox;
     
+    // If the random box type is none, this is an invalid box.
     randBox = PickRandomBox(randType);
 
-    // Make sure this isn't an invalid box.
+    DebugMsg(3, "Picked random box: %s!", randBox.name);
+
+    // Make sure this is a valid box.
     if (randBox.type == BOXTYPE_NONE) {
         DebugMsg(1, "Random box picked, but box type is none indicating invalid box.", randBox.name, view_as<int>(randBox.type));
 
         return Plugin_Continue;
     }
 
-    DebugMsg(3, "Picked random box: %s!", randBox.name);
+    // Check for announce.
+    if (gAnnounce && IsClientInGame(client)) {
+        char msg[256];
 
-    // Get user ID.
-    int userId = GetEventInt(ev, "userid", -1);
+        Format(msg, sizeof(msg), "%N opened the '%s' box!", client, randBox.display);
+
+        switch (view_as<MsgType>(gAnnounceType)) {
+            case MSG_CHAT:
+                PrintToChatAll("%t %s", "Tag", msg);
+
+            case MSG_SERVER:
+                PrintToServer("%t %s", "Tag", msg);
+
+            case MSG_CONSOLE:
+                PrintToConsoleAll("%t %s", "Tag", msg);
+
+            case MSG_HINT:
+                PrintHintTextToAll("%t %s", "Tag", msg);
+        }
+    }
 
     // Call box opened forward.
     Call_StartForward(gGfBoxOpened);
