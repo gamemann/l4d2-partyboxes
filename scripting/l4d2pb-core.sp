@@ -451,7 +451,7 @@ public Action Event_UpgradePackUsed(Handle ev, const char[] name, bool dontBroad
                 PrintToConsoleAll("%t %s", "Tag", msg);
 
             case MSG_HINT:
-                PrintHintTextToAll("%t %s", "Tag", msg);
+                PrintHintTextToAll("%s", "Tag", msg);
         }
     }
 
