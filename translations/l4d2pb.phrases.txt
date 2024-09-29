@@ -2,6 +2,26 @@
 {
     "Tag"
     {
-        "en"        "[L4D2-PB]"
+        "en"            "[L4D2-PB]"
+    }
+    "EndRoundStatsGlobal"
+    {
+        "#format"       "{1:d},{2:d},{3:d},{4:d}"
+        "en"            "A total of {1} boxes were opened! Good boxes => {2}. Mid boxes => {3}. Bad boxes => {4}."
+    }
+    "OpenAnnounce"
+    {
+        "#format"       "{1:s},{2:s}"
+        "en"            "{1} opened the '{2}' box!"
+    }
+    "CmdStatsGlobal"
+    {
+        "#format"       "{1:d},{2:d},{3:d}"
+        "en"            "A total of {1} boxes have been opened so far. You've opened a total of {2} boxes during this round/map. Total boxes => {3}."
+    }
+    "CmdOpenReply"
+    {
+        "#format"       "{1:s}"
+        "en"            "Opening box '{1:s}' manually!"
     }
 }

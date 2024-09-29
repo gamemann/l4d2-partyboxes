@@ -286,13 +286,18 @@ stock void PrintStats() {
 
     // To Do: Calculate individual stats.
 
-    PrintToChatAll("%t A total of %d boxes were opened! Good boxes => %d. Mid boxes => %d. Bad boxes => %d.", "Tag", totalBoxes, gGoodBoxesOpened, gMidBoxesOpened, gBadBoxesOpened);
+    PrintToChatAll("%t %t", "Tag", "EndRoundStatsGlobal", totalBoxes, gGoodBoxesOpened, gMidBoxesOpened, gBadBoxesOpened);
 }
 
 stock void AnnounceBox(int client, Box box) {
+    // Get client name,
+    char name[MAX_NAME_LENGTH];
+    GetClientName(client, name, sizeof(name));
+
+    // Create and format message.
     char msg[256];
 
-    Format(msg, sizeof(msg), "%N opened the '%s' box!", client, box.display);
+    Format(msg, sizeof(msg), "%t", "OpenAnnounce", name, box.display);
 
     switch (view_as<MsgType>(gAnnounceType)) {
         case MSG_CHAT:
@@ -447,7 +452,7 @@ public Action Command_Stats(int client, int args) {
     int totalBoxes = gGoodBoxesOpened + gMidBoxesOpened + gBadBoxesOpened;
     int clTotalBoxes = gClGoodBoxesOpened[client] + gClMidBoxesOpened[client] + gClBadBoxesOpened[client];
 
-    PrintToChat(client, "%t A total of %d boxes have been opened so far. You've opened a total of %d boxes during this round/map. Total boxes => %d.", "Tag", totalBoxes, clTotalBoxes, gBoxes.Length);
+    PrintToChat(client, "%t %t", "Tag", "CmdStatsGlobal", totalBoxes, clTotalBoxes, gBoxes.Length);
 
     return Plugin_Handled;
 }
@@ -465,7 +470,7 @@ public Action Command_OpenBox(int client, int args) {
 
     GetCmdArg(1, boxName, sizeof(boxName));
 
-    PrintToChat(client, "%t Opening box '%s' manually!", "Tag", boxName);
+    PrintToChat(client, "%t %t", "Tag", "CmdOpenReply", boxName);
 
     // Call box opened forward with specified box name.
     Call_StartForward(gGfBoxOpened);
