@@ -32,6 +32,19 @@ Here's the output of the `plugin.l4d2pb.cfg` config file for more information on
 // Default: "-1"
 l4d2_max_bad_boxes "-1"
 
+// Whether to announce who opens boxes.
+// -
+// Default: "1"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d2pb_announce "1"
+
+// What type of printing to do for announcing. 0 = chat. 1 = server console. 2 = client console. 3 = hint.
+// -
+// Default: "3"
+// Minimum: "0.000000"
+l4d2pb_announce_type "3"
+
 // The chances of a bad box being opened.
 // -
 // Default: "0.25"
@@ -95,15 +108,18 @@ l4d2pb_max_type "0"
 // -
 // Default: "0"
 // Minimum: "0.000000"
-// Maximum: "5.000000"
 l4d2pb_verbose "0"
 
 // The type of verbose messages. 0 = prints to chat. 1 = prints to server console. 2 = prints to client's console.
 // -
 // Default: "0"
 // Minimum: "0.000000"
-// Maximum: "0.000000"
 l4d2pb_verbose_type "0"
+
+// The plugin's version.
+// -
+// Default: "1.0.0"
+l4d2pb_version "1.0.0"
 ```
 
 ### Enums
@@ -204,15 +220,22 @@ l4d2pb_box_dmg_min "5.0"
 
 // The maximum radius to damage survivors in. 0 = disables damaging others.
 // -
-// Default: "30.0"
+// Default: "500.0"
 // Minimum: "0.000000"
-l4d2pb_box_dmg_radius_max "30.0"
+l4d2pb_box_dmg_radius_max "500.0"
 
 // The mimimum radius to damage survivors in.
 // -
-// Default: "5.0"
+// Default: "200.0"
 // Minimum: "0.000000"
-l4d2pb_box_dmg_radius_min "5.0"
+l4d2pb_box_dmg_radius_min "200.0"
+
+// If 1, when damage is applied, each player affected receives a random damage count.
+// -
+// Default: "1"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d2pb_box_dmg_rand_per_player "1"
 ```
 
 ### [Test](./scripting/l4d2pb-box-test.sp)
