@@ -243,7 +243,7 @@ stock void Activate(int userId) {
 
                 // Check for announce.
                 if (gAnnounce)
-                    PrintToChat(i, "%t %t", "Tag", "DamageAnnounce", userName, dmg);
+                    L4D2PB_PrintToChat(i, "%t %t", "Tag", "DamageAnnounce", userName, dmg);
             }
         }
     }

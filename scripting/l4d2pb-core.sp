@@ -4,6 +4,17 @@
 #define PL_CORE
 #include <l4d2pb-core>
 
+//#define USE_COLORS
+
+#if defined USE_COLORS
+#include <multicolors>
+#endif
+
+//#define CHAT_USE_TAG
+#define CHAT_EXTRA_BYTES 255
+
+//#define TEST_CHATALL_CMD
+
 #define PL_VERSION "1.0.0"
 
 #define BOX_MAX_TYPES 4
@@ -106,10 +117,12 @@ public APLRes AskPluginLoad2(Handle hdl, bool late, char[] err, int errMax) {
     RegPluginLibrary("l4d2pb");
 
     // Natives.
-    CreateNative("L4D2PB_DebugMsg", Native_DebugMsg);
-
     CreateNative("L4D2PB_RegisterBox", Native_RegisterBox);
     CreateNative("L4D2PB_UnloadBox", Native_UnloadBox);
+
+    CreateNative("L4D2PB_DebugMsg", Native_DebugMsg);
+    CreateNative("L4D2PB_PrintToChat", Native_PrintToChat);
+    CreateNative("L4D2PB_PrintToChatAll", Native_PrintToChatAll);
 
     return APLRes_Success;
 }
@@ -185,6 +198,10 @@ public void OnPluginStart() {
     RegConsoleCmd("sm_l4d2pb_stats", Command_Stats, "Prints stats and information.");
 
     RegAdminCmd("sm_l4d2pb_open", Command_OpenBox, ADMFLAG_ROOT, "Opens a specified box.");
+
+#if defined TEST_CHATALL_CMD
+    RegAdminCmd("sm_l4d2pb_test", Command_Test, ADMFLAG_ROOT);
+#endif
     
     // Load translactions file.
     LoadTranslations("l4d2pb.phrases.txt");
@@ -245,12 +262,48 @@ public void CVar_Changed(ConVar cv, const char[] oldV, const char[] newV) {
     SetCVars();
 }
 
+stock void BetterPrintToChat(int client, const char[] msg, any...) {
+    // We need to format the message.
+    int len = strlen(msg) + CHAT_EXTRA_BYTES;
+    char[] fMsg = new char[len];
+
+    VFormat(fMsg, len, msg, 3);
+
+#if defined CHAT_USE_TAG
+    Format(fMsg, sizeof(fMsg), "%t %s", "Tag", fMsg);
+#endif
+
+#if defined USE_COLORS
+    CPrintToChat(client, fMsg);
+#else
+    PrintToChat(client, fMsg);
+#endif
+}
+
+stock void BetterPrintToChatAll(const char[] msg, any...) {
+    // We need to format the message.
+    int len = strlen(msg) + CHAT_EXTRA_BYTES;
+    char[] fMsg = new char[len];
+
+    VFormat(fMsg, len, msg, 2);
+
+#if defined CHAT_USE_TAG
+    Format(fMsg, sizeof(fMsg), "%t %s", "Tag", fMsg);
+#endif
+
+#if defined USE_COLORS
+    CPrintToChatAll(fMsg);
+#else
+    PrintToChatAll(fMsg);
+#endif
+}
+
 stock void DebugMsg(int req, const char[] msg, any...) {
     if (req > gVerbose)
         return;
 
     // We need to format the message.
-    int len = strlen(msg) + 255;
+    int len = strlen(msg) + CHAT_EXTRA_BYTES;
     char[] fMsg = new char[len];
 
     VFormat(fMsg, len, msg, 3);
@@ -286,7 +339,7 @@ stock void PrintStats() {
 
     // To Do: Calculate individual stats.
 
-    PrintToChatAll("%t %t", "Tag", "EndRoundStatsGlobal", totalBoxes, gGoodBoxesOpened, gMidBoxesOpened, gBadBoxesOpened);
+    BetterPrintToChatAll("%t %t", "Tag", "EndRoundStatsGlobal", totalBoxes, gGoodBoxesOpened, gMidBoxesOpened, gBadBoxesOpened);
 }
 
 stock void AnnounceBox(int client, Box box) {
@@ -301,7 +354,7 @@ stock void AnnounceBox(int client, Box box) {
 
     switch (view_as<MsgType>(gAnnounceType)) {
         case MSG_CHAT:
-            PrintToChatAll("%t %s", "Tag", msg);
+            BetterPrintToChatAll("%t %s", "Tag", msg);
 
         case MSG_SERVER:
             PrintToServer("%t %s", "Tag", msg);
@@ -452,7 +505,7 @@ public Action Command_Stats(int client, int args) {
     int totalBoxes = gGoodBoxesOpened + gMidBoxesOpened + gBadBoxesOpened;
     int clTotalBoxes = gClGoodBoxesOpened[client] + gClMidBoxesOpened[client] + gClBadBoxesOpened[client];
 
-    PrintToChat(client, "%t %t", "Tag", "CmdStatsGlobal", totalBoxes, clTotalBoxes, gBoxes.Length);
+    BetterPrintToChat(client, "%t %t", "Tag", "CmdStatsGlobal", totalBoxes, clTotalBoxes, gBoxes.Length);
 
     return Plugin_Handled;
 }
@@ -460,7 +513,7 @@ public Action Command_Stats(int client, int args) {
 public Action Command_OpenBox(int client, int args) {
     // Make sure we have a box name.
     if (args < 1) {
-        PrintToChat(client, "Usage: sm_l4d2pb_open <box name>");
+        BetterPrintToChat(client, "Usage: sm_l4d2pb_open <box name>");
 
         return Plugin_Handled;
     }
@@ -470,7 +523,7 @@ public Action Command_OpenBox(int client, int args) {
 
     GetCmdArg(1, boxName, sizeof(boxName));
 
-    PrintToChat(client, "%t %t", "Tag", "CmdOpenReply", boxName);
+    BetterPrintToChat(client, "%t %t", "Tag", "CmdOpenReply", boxName);
 
     // Call box opened forward with specified box name.
     Call_StartForward(gGfBoxOpened);
@@ -493,6 +546,17 @@ public Action Command_OpenBox(int client, int args) {
 
     return Plugin_Handled;
 }
+
+#if defined TEST_CHATALL_CMD
+public Action Command_Test(int client, int args) {
+    BetterPrintToChat(client, "{red} Test {default} message sent to {green}client {default}(%N)!", client);
+    BetterPrintToChatAll("{red} Test {default} message sent to {green}all {default}clients!");
+
+    PrintToChat(client, "Test done!");
+
+    return Plugin_Handled;
+} 
+#endif
 
 public void OnMapStart() {
     // We need to reset everything regardless.
@@ -635,6 +699,45 @@ public int Native_DebugMsg(Handle pl, int paramsCnt) {
     FormatNativeString(0, 0, 3, sizeof(fMsg), _, fMsg, msg);
 
     DebugMsg(req, fMsg);
+    
+    return 0;
+}
+
+public int Native_PrintToChat(Handle pl, int paramsCnt) {
+    // Get required level.
+    int client = GetNativeCell(1);
+
+    int msgLen;
+    GetNativeStringLength(2, msgLen);
+
+    if (msgLen <= 0)
+        return 1;
+
+    char[] msg = new char[msgLen + 1];
+    GetNativeString(2, msg, msgLen + 1);
+
+    char fMsg[4096];
+    FormatNativeString(0, 0, 3, sizeof(fMsg), _, fMsg, msg);
+
+    BetterPrintToChat(client, fMsg);
+    
+    return 0;
+}
+
+public int Native_PrintToChatAll(Handle pl, int paramsCnt) {
+    int msgLen;
+    GetNativeStringLength(1, msgLen);
+
+    if (msgLen <= 0)
+        return 1;
+
+    char[] msg = new char[msgLen + 1];
+    GetNativeString(1, msg, msgLen + 1);
+
+    char fMsg[4096];
+    FormatNativeString(0, 0, 2, sizeof(fMsg), _, fMsg, msg);
+
+    BetterPrintToChatAll(fMsg);
     
     return 0;
 }

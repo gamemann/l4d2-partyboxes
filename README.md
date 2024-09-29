@@ -158,17 +158,6 @@ Here are a list of core natives you may use when developing your own box types. 
 
 ```c
 /**
- * Prints a debug message from the core plugin.
- *
- * @param req      The required verbose level from the core plugin.
- * @param msg      The debug message to send.
- * @param ...      Formatted arguments for msg.
- *
- * @return void
- */
-native void L4D2PB_DebugMsg(int req, const char[] msg, any...);
-
-/**
  * Registers a box to core and adds it to the box rotation.
  *
  * @param type      The box type (BoxType enum).
@@ -187,6 +176,38 @@ native int L4D2PB_RegisterBox(BoxType type, const char[] name, const char[] disp
  * @return 0 on success or 1 on error.
  */
 native int L4D2PB_UnloadBox(const char[] name);
+
+/**
+ * Prints a debug message from the core plugin.
+ *
+ * @param req      The required verbose level from the core plugin.
+ * @param msg      The debug message to send.
+ * @param ...      Formatted arguments for msg.
+ *
+ * @return void
+ */
+native void L4D2PB_DebugMsg(int req, const char[] msg, any...);
+
+/**
+ * Prints a message to a client's chat from the core plugin (recommended).
+ *
+ * @param client   The client's index to print to.
+ * @param msg      The message to print.
+ * @param ...      Formatted arguments for msg.
+ *
+ * @return void
+ */
+native void L4D2PB_PrintToChat(int client, const char[] msg, any...);
+
+/**
+ * Prints a message to all clients from the core plugin (recommended).
+ *
+ * @param msg      The message to print.
+ * @param ...      Formatted arguments for msg.
+ *
+ * @return void
+ */
+native void L4D2PB_PrintToChatAll(const char[] msg, any...);
 ```
 
 ### Forwards
@@ -364,6 +385,11 @@ Additionally, you may set the `SRC_DIR` environment variable which is the path t
 On Windows, there isn't a Batch script created at the moment (to do...), but simply dragging the plugin's source code files inside of the `addons/sourcemod/scripting/compile.exe` should be fine. Just make sure to copy [`scripting/include/l4d2pb-core.inc`](./scripting/include/l4d2pb-core.inc) into `addons/sourcemod/scripting/include`.
 
 **NOTE** - I've included a [`tasks.json`](./vscode/tasks.json) file for Visual Studio Code that builds the current file you're working on with a task! You can bind the task execution to a keyboard shortcut to make building very easy inside of VS Code.
+
+### Using [Multi Colors](https://forums.alliedmods.net/showthread.php?t=247770)
+If you want to utilize Multi Colors inside of chat messages and such, you will need to uncomment the `#define USE_COLORS` line in the [`scripting/l4d2pb-core.sp`](./scripting/l4d2pb-core.sp#7) file and recompile.
+
+Afterwards, you should be able to utilize colors such as `{red}` inside of translations files located in [`translations/`](./translations/) directory.
 
 ## Installing
 After building the plugin's source code, copy the compiled plugin files (ending in `.smx`) to the game server's `addons/sourcemod/plugins/` directory.

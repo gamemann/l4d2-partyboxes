@@ -91,7 +91,7 @@ public void CVar_Changed(Handle cv, const char[] oldV, const char[] newV) {
 }
 
 public void Activate() {
-    PrintToChatAll("%t %t", "Tag", "Activated");
+    L4D2PB_PrintToChatAll("%t %t", "Tag", "Activated");
 }
 
 public void L4D2PB_OnBoxOpened(int type, const char[] boxName, int userId) {
