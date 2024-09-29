@@ -292,8 +292,8 @@ The configuration file may be found at `cfg/sourcemod/plugin.l4d2pb-box-test.cfg
 l4d2pb_box_test_enabled "0"
 ```
 
-## More Boxes In Development!
-I plan to keep adding more types of boxes in the future! If you would like to make your own types of boxes and release them here, feel free to make a pull request!
+### More Boxes In Development!
+I plan to keep adding boxes over time! If you would like to make your own boxes and release them here, feel free to make a pull request!
 
 ## Building
 Firstly, you'll want to download SourceMod from [here](https://www.sourcemod.net/downloads.php).
