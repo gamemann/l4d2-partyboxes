@@ -35,8 +35,7 @@ float gRadiusMax = 500.0;
 float gDmgMin = 5.0;
 float gDmgMax = 100.0;
 
-public void OnLibraryAdded(const char[] name) 
-{
+public void OnLibraryAdded(const char[] name) {
 	if (StrEqual(name, "l4d2pb"))
         gCoreEnabled = true;
 }

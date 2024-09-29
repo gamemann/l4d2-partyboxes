@@ -22,8 +22,7 @@ bool gCoreEnabled = false;
 
 bool gLoaded = false;
 
-public void OnLibraryAdded(const char[] name) 
-{
+public void OnLibraryAdded(const char[] name) {
 	if (StrEqual(name, "l4d2pb"))
         gCoreEnabled = true;
 }

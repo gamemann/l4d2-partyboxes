@@ -64,8 +64,6 @@ ConVar gCvMaxBadBoxes = null;
 
 ConVar gCvEndRoundStats = null;
 
-ConVar gCvVersion = null;
-
 bool gEnabled = true;
 
 int gVerbose = 0;
@@ -153,7 +151,7 @@ public void OnPluginStart() {
     gCvEndRoundStats = CreateConVar("l4d2pb_end_round_stats", "1", "Whether to display stats in chat on round end.", _, true, 0.0, true, 1.0);
     HookConVarChange(gCvEndRoundStats, CVar_Changed);
 
-    gCvVersion = CreateConVar("l4d2pb_version", PL_VERSION, "The plugin's version.");
+    CreateConVar("l4d2pb_version", PL_VERSION, "The plugin's version.");
 
     // Forwards.
     gGfBoxOpened = new GlobalForward("BoxOpened", ET_Ignore, Param_Cell, Param_String, Param_Cell);
