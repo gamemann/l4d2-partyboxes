@@ -67,6 +67,8 @@ public void OnPluginStart() {
     gCvDmgRandPerPlayer = CreateConVar("l4d2pb_box_dmg_rand_per_player", "1", "If 1, when damage is applied, each player affected receives a random damage count.", _, true, 0.0, true, 1.0);
     HookConVarChange(gCvDmgRandPerPlayer, CVar_Changed);
 
+    CreateConVar("l4d2pb_box_dmg_version", PL_VERSION, "The damage box's version.");
+
     LoadTranslations("l4d2pb.phrases.txt");
     LoadTranslations("l4d2pb-box-dmg.phrases.txt");
 

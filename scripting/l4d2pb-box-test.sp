@@ -37,6 +37,8 @@ public void OnPluginStart() {
     gCvEnabled = CreateConVar("l4d2pb_box_test_enabled", "0", "Enables the test box", _, true, 0.0, true, 1.0);
     HookConVarChange(gCvEnabled, CVar_Changed);
 
+    CreateConVar("l4d2pb_box_test_version", PL_VERSION, "The test box's version.");
+
     LoadTranslations("l4d2pb.phrases.txt");
     LoadTranslations("l4d2pb-box-test.phrases.txt");
 
