@@ -9,6 +9,21 @@
         "#format"       "{1:d},{2:d},{3:d},{4:d}"
         "en"            "A total of {1} boxes were opened! Good boxes => {2}. Mid boxes => {3}. Bad boxes => {4}."
     }
+    "EndRoundStatsGood"
+    {
+        "#format"       "{1:s},{2:d}"
+        "en"            "{1} opened the most good boxes with {2}!"
+    }
+    "EndRoundStatsMid"
+    {
+        "#format"       "{1:s},{2:d}"
+        "en"            "{1} opened the most mid boxes with {2}!"
+    }
+    "EndRoundStatsBad"
+    {
+        "#format"       "{1:s},{2:d}"
+        "en"            "{1} opened the most bad boxes with {2}!"
+    }
     "OpenAnnounce"
     {
         "#format"       "{1:s},{2:s}"

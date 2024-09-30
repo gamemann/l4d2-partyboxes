@@ -335,9 +335,56 @@ stock void ResetBoxCounters() {
 }
 
 stock void PrintStats() {
-    int totalBoxes = gGoodBoxesOpened + gMidBoxesOpened + gBadBoxesOpened;
+    // Get individual stats.
+    int mostGoodClient = -1;
+    char mostGoodName[MAX_NAME_LENGTH];
 
-    // To Do: Calculate individual stats.
+    int mostMidClient = -1;
+    char mostMidName[MAX_NAME_LENGTH];
+
+    int mostBadClient = -1;
+    char mostBadName[MAX_NAME_LENGTH];
+
+    // Loop through all players.
+    for (int i = 1; i <= MaxClients; i++) {
+        if (!IsClientInGame(i))
+            continue;
+
+        // Check good boxes.
+        if (mostGoodClient == -1 || gClGoodBoxesOpened[i] > gClGoodBoxesOpened[mostGoodClient])
+            mostGoodClient = i;
+
+        // Check mid boxes.
+        if (mostMidClient == -1 || gClMidBoxesOpened[i] > gClMidBoxesOpened[mostMidClient])
+            mostMidClient = i;
+
+        // Check bad boxes.
+        if (mostBadClient == -1 || gClBadBoxesOpened[i] > gClBadBoxesOpened[mostBadClient])
+            mostBadClient = i;
+    }
+
+    // Print most good boxes if we have a count.
+    if (mostGoodClient != -1 && gClGoodBoxesOpened[mostGoodClient] > 0) {
+        GetClientName(mostGoodClient, mostGoodName, sizeof(mostGoodName));
+
+        BetterPrintToChatAll("%t %t", "Tag", "EndRoundStatsGood", mostGoodName, gClGoodBoxesOpened[mostGoodClient]);
+    }
+
+    // Print most mid boxes if we have a count.
+    if (mostMidClient != -1 && gClMidBoxesOpened[mostMidClient] > 0) {
+        GetClientName(mostMidClient, mostMidName, sizeof(mostMidName));
+
+        BetterPrintToChatAll("%t %t", "Tag", "EndRoundStatsMid", mostMidName, gClMidBoxesOpened[mostMidClient]);
+    }
+
+    // Print most bad boxes if we have a count.
+    if (mostBadClient != -1 && gClBadBoxesOpened[mostBadClient] > 0) {
+        GetClientName(mostBadClient, mostBadName, sizeof(mostBadName));
+
+        BetterPrintToChatAll("%t %t", "Tag", "EndRoundStatsBad", mostBadName, gClBadBoxesOpened[mostBadClient]);
+    }
+
+    int totalBoxes = gGoodBoxesOpened + gMidBoxesOpened + gBadBoxesOpened;
 
     BetterPrintToChatAll("%t %t", "Tag", "EndRoundStatsGlobal", totalBoxes, gGoodBoxesOpened, gMidBoxesOpened, gBadBoxesOpened);
 }
