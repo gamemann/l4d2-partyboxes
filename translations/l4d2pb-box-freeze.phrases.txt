@@ -1,0 +1,8 @@
+"Phrases"
+{
+    "FreezeAnnounce"
+    {
+        "#format"       "{1:s}, {2:d}"
+        "en"            "{1} opened a freeze box that froze you for {2} seconds!"
+    }
+}
