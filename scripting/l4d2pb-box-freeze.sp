@@ -132,7 +132,7 @@ stock LoadBox() {
         } else if (gEnabled && !gLoaded) {
             L4D2PB_DebugMsg(2, "Loading freeze box!");
 
-            L4D2PB_RegisterBox(BOXTYPE_MID, BOX_NAME, BOX_DISPLAY);
+            L4D2PB_RegisterBox(BOXTYPE_BAD, BOX_NAME, BOX_DISPLAY);
 
             gLoaded = true;
         }
