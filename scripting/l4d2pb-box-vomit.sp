@@ -21,8 +21,6 @@ public Plugin myinfo = {
 // ConVars
 ConVar gCvEnabled = null;
 
-ConVar gCvAnnounce = null;
-
 ConVar gCvVomitSound = null;
 
 ConVar gCvRadiusMin = null;
@@ -30,8 +28,6 @@ ConVar gCvRadiusMax = null;
 
 // ConVar values
 bool gEnabled;
-
-bool gAnnounce;
 
 char gVomitSound[PLATFORM_MAX_PATH];
 
@@ -87,9 +83,6 @@ public void OnPluginStart() {
     gCvEnabled = CreateConVar("l4d2pb_box_vomit_enabled", "1", "Enables the vomit box", _, true, 0.0, true, 1.0);
     HookConVarChange(gCvEnabled, CVar_Changed);
 
-    gCvAnnounce = CreateConVar("l4d2pb_box_vomit_announce", "1", "Announces to players affected by vomit.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvAnnounce, CVar_Changed);
-
     gCvVomitSound = CreateConVar("l4d2pb_box_vomit_vomit_sound", "", "If non-empty, will play this sound file when a player is vomited on (treated as a path).");
     HookConVarChange(gCvVomitSound, CVar_Changed);
 
@@ -100,10 +93,6 @@ public void OnPluginStart() {
     HookConVarChange(gCvRadiusMax, CVar_Changed);
 
     CreateConVar("l4d2pb_box_vomit_version", PL_VERSION, "The vomit box's version.");
-
-    // Load translations.
-    LoadTranslations("l4d2pb.phrases.txt");
-    LoadTranslations("l4d2pb-box-vomit.phrases.txt");
 
     // Create config.
     AutoExecConfig(true, "plugin.l4d2pb-box-vomit");
@@ -129,8 +118,6 @@ stock LoadBox() {
 
 stock SetCVars() {
     gEnabled = GetConVarBool(gCvEnabled);
-
-    gAnnounce = GetConVarBool(gCvAnnounce);
 
     GetConVarString(gCvVomitSound, gVomitSound, sizeof(gVomitSound));
 
