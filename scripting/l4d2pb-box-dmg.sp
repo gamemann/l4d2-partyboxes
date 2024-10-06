@@ -71,37 +71,37 @@ public void OnLibraryAdded(const char[] name) {
 
 public void OnPluginStart() {
     gCvEnabled = CreateConVar("l4d2pb_box_dmg_enabled", "1", "Enables the damage box", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvEnabled, CVar_Changed);
+    gCvEnabled.AddChangeHook(CVar_Changed);
 
     gCvAnnounce = CreateConVar("l4d2pb_box_dmg_announce", "1", "Announces to damaged players who opened the box and the amount it damaged them for.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvAnnounce, CVar_Changed);
+    gCvAnnounce.AddChangeHook(CVar_Changed);
 
     gCvRadiusMin = CreateConVar("l4d2pb_box_dmg_radius_min", "200.0", "The mimimum radius to damage survivors in.", _, true, 0.0);
-    HookConVarChange(gCvRadiusMin, CVar_Changed);
+    gCvRadiusMin.AddChangeHook(CVar_Changed);
 
     gCvRadiusMax = CreateConVar("l4d2pb_box_dmg_radius_max", "500.0", "The maximum radius to damage survivors in. 0 = disables damaging others.", _, true, 0.0);
-    HookConVarChange(gCvRadiusMax, CVar_Changed);
+    gCvRadiusMax.AddChangeHook(CVar_Changed);
 
     gCvDmgMin = CreateConVar("l4d2pb_box_dmg_min", "5.0", "The minimum damage to apply.", _, true, 1.0);
-    HookConVarChange(gCvDmgMin, CVar_Changed);
+    gCvDmgMin.AddChangeHook(CVar_Changed);
 
     gCvDmgMax = CreateConVar("l4d2pb_box_dmg_max", "100.0", "The maximum damage to apply.", _, true, 1.0);
-    HookConVarChange(gCvDmgMax, CVar_Changed);
+    gCvDmgMax.AddChangeHook(CVar_Changed);
 
     gCvDmgRandPerPlayer = CreateConVar("l4d2pb_box_dmg_rand_per_player", "1", "If 1, when damage is applied, each player affected receives a random damage count.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvDmgRandPerPlayer, CVar_Changed);
+    gCvDmgRandPerPlayer.AddChangeHook(CVar_Changed);
 
     gCvBypassOnTakeDamage = CreateConVar("l4d2pb_box_dmg_bypass_ontakedamage", "0", "If 1, bypasses the SDKHooks_OnTakeDamage() hook when damaging users.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvBypassOnTakeDamage, CVar_Changed);
+    gCvBypassOnTakeDamage.AddChangeHook(CVar_Changed);
 
     gCvUseUserAsInflictor = CreateConVar("l4d2pb_box_dmg_use_user_as_inflictor", "1", "If 1, the user who opened the damage box is used as the inflictor when damaging players.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvUseUserAsInflictor, CVar_Changed);
+    gCvUseUserAsInflictor.AddChangeHook(CVar_Changed);
 
     gCvUseUserAsAttacker = CreateConVar("l4d2pb_box_dmg_use_user_as_attacker", "1", "If 1, the uesr who opened the damage box is used as the attacker when damaging players.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvUseUserAsAttacker, CVar_Changed);
+    gCvUseUserAsAttacker.AddChangeHook(CVar_Changed);
 
     gCvUseUserPos = CreateConVar("l4d2pb_box_dmg_use_user_pos", "0", "If 1, uses the position of who opened the box as the damage position.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvUseUserPos, CVar_Changed);
+    gCvUseUserPos.AddChangeHook(CVar_Changed);
 
     CreateConVar("l4d2pb_box_dmg_version", PL_VERSION, "The damage box's version.");
 
@@ -130,22 +130,22 @@ stock LoadBox() {
 }
 
 stock SetCVars() {
-    gEnabled = GetConVarBool(gCvEnabled);
+    gEnabled = gCvEnabled.BoolValue;
 
-    gAnnounce = GetConVarBool(gCvAnnounce);
+    gAnnounce = gCvAnnounce.BoolValue;
 
-    gRadiusMin = GetConVarFloat(gCvRadiusMin);
-    gRadiusMax = GetConVarFloat(gCvRadiusMax);
+    gRadiusMin = gCvRadiusMin.FloatValue;
+    gRadiusMax = gCvRadiusMax.FloatValue;
 
-    gDmgMin = GetConVarFloat(gCvDmgMin);
-    gDmgMax = GetConVarFloat(gCvDmgMax);
-    gDmgRandPerPlayer = GetConVarBool(gCvDmgRandPerPlayer);
+    gDmgMin = gCvDmgMin.FloatValue;
+    gDmgMax = gCvDmgMax.FloatValue;
+    gDmgRandPerPlayer = gCvDmgRandPerPlayer.BoolValue;
 
-    gBypassOnTakeDamage = GetConVarBool(gCvBypassOnTakeDamage);
+    gBypassOnTakeDamage = gCvBypassOnTakeDamage.BoolValue;
 
-    gUseUserAsInflictor = GetConVarBool(gCvUseUserAsInflictor);
-    gUseUserAsAttacker = GetConVarBool(gCvUseUserAsAttacker);
-    gUseUserPos = GetConVarBool(gCvUseUserPos);
+    gUseUserAsInflictor = gCvUseUserAsInflictor.BoolValue;
+    gUseUserAsAttacker = gCvUseUserAsAttacker.BoolValue;
+    gUseUserPos = gCvUseUserPos.BoolValue;
 
     LoadBox();
 }

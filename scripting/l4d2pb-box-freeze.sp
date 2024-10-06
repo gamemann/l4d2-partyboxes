@@ -76,37 +76,37 @@ public void OnLibraryAdded(const char[] name) {
 
 public void OnPluginStart() {
     gCvEnabled = CreateConVar("l4d2pb_box_freeze_enabled", "1", "Enables the freeze box", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvEnabled, CVar_Changed);
+    gCvEnabled.AddChangeHook(CVar_Changed);
 
     gCvAnnounce = CreateConVar("l4d2pb_box_freeze_announce", "1", "Announces to players affected by freeze.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvAnnounce, CVar_Changed);
+    gCvAnnounce.AddChangeHook(CVar_Changed);
 
     gCvFreezeSound = CreateConVar("l4d2pb_box_freeze_freeze_sound", "physics/glass/glass_impact_bullet1.wav", "If non-empty, will play this sound file when a player is frozen (treated as a path).");
-    HookConVarChange(gCvFreezeSound, CVar_Changed);
+    gCvFreezeSound.AddChangeHook(CVar_Changed);
 
     gCvUnfreezeSound = CreateConVar("l4d2pb_box_freeze_unfreeze_sound", "physics/glass/glass_largesheet_break1.wav", "If non-empty, will play this sound file when a player is unfrozen (treated as a path).");
-    HookConVarChange(gCvUnfreezeSound, CVar_Changed);
+    gCvUnfreezeSound.AddChangeHook(CVar_Changed);
 
     gCvRadiusMin = CreateConVar("l4d2pb_box_freeze_radius_min", "200", "The minimum radius to freeze players in.", _, true, 0.0);
-    HookConVarChange(gCvRadiusMin, CVar_Changed);
+    gCvRadiusMin.AddChangeHook(CVar_Changed);
 
     gCvRadiusMax = CreateConVar("l4d2pb_box_freeze_radius_max", "500", "The maximum radius to freeze players in. 0 = Disables other players being impacted.", _, true, 0.0);
-    HookConVarChange(gCvRadiusMax, CVar_Changed);
+    gCvRadiusMax.AddChangeHook(CVar_Changed);
 
     gCvTimeMin = CreateConVar("l4d2pb_box_freeze_time_min", "3.0", "The minimum amount of time in seconds to freeze players for.", _, true, 0.0);
-    HookConVarChange(gCvTimeMin, CVar_Changed);
+    gCvTimeMin.AddChangeHook(CVar_Changed);
 
     gCvTimeMax = CreateConVar("l4d2pb_box_freeze_time_max", "15.0", "The maximum amount of time in seconds to freezep layers for.", _, true, 0.0);
-    HookConVarChange(gCvTimeMax, CVar_Changed);
+    gCvTimeMax.AddChangeHook(CVar_Changed);
 
     gCvTimeRandPerPlayer = CreateConVar("l4d2pb_box_freeze_time_rand_per_player", "0.0", "Whether to pick a random freeze time for each person affected.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvTimeRandPerPlayer, CVar_Changed);
+    gCvTimeRandPerPlayer.AddChangeHook(CVar_Changed);
 
     gCvFreezeRgba = CreateConVar("l4d2pb_box_freeze_rgba", "0 0 0 174", "The RGBA color to set the player when frozen (red green blue alpha).");
-    HookConVarChange(gCvFreezeRgba, CVar_Changed);
+    gCvFreezeRgba.AddChangeHook(CVar_Changed);
 
     gCvUnfreezeRgba = CreateConVar("l4d2pb_box_freeze_unfreeze_rgba", "255 255 255 255", "The RGBA color to set the player when frozen (red green blue alpha)");
-    HookConVarChange(gCvUnfreezeRgba, CVar_Changed);
+    gCvUnfreezeRgba.AddChangeHook(CVar_Changed);
 
     CreateConVar("l4d2pb_box_freeze_version", PL_VERSION, "The freeze box's version.");
 
@@ -140,22 +140,22 @@ stock LoadBox() {
 }
 
 stock SetCVars() {
-    gEnabled = GetConVarBool(gCvEnabled);
+    gEnabled = gCvEnabled.BoolValue;
 
-    gAnnounce = GetConVarBool(gCvAnnounce);
+    gAnnounce = gCvAnnounce.BoolValue;
 
-    GetConVarString(gCvFreezeSound, gFreezeSound, sizeof(gFreezeSound));
-    GetConVarString(gCvUnfreezeSound, gUnfreezeSound, sizeof(gUnfreezeSound));
+    gCvFreezeSound.GetString(gFreezeSound, sizeof(gFreezeSound));
+    gCvUnfreezeSound.GetString(gUnfreezeSound, sizeof(gUnfreezeSound));
 
-    gRadiusMin = GetConVarFloat(gCvRadiusMin);
-    gRadiusMax = GetConVarFloat(gCvRadiusMax);
+    gRadiusMin = gCvRadiusMin.FloatValue;
+    gRadiusMax = gCvRadiusMax.FloatValue;
 
-    gTimeMin = GetConVarFloat(gCvTimeMin);
-    gTimeMax = GetConVarFloat(gCvTimeMax);
-    gTimeRandPerPlayer = GetConVarBool(gCvTimeRandPerPlayer);
+    gTimeMin = gCvTimeMin.FloatValue;
+    gTimeMax = gCvTimeMax.FloatValue;
+    gTimeRandPerPlayer = gCvTimeRandPerPlayer.BoolValue;
 
-    GetConVarString(gCvFreezeRgba, gFreezeRgba, sizeof(gFreezeRgba));
-    GetConVarString(gCvUnfreezeRgba, gUnfreezeRgba, sizeof(gUnfreezeRgba));
+    gCvFreezeRgba.GetString(gFreezeRgba, sizeof(gFreezeRgba));
+    gCvUnfreezeRgba.GetString(gUnfreezeRgba, sizeof(gUnfreezeRgba));
 
     LoadBox();
 }

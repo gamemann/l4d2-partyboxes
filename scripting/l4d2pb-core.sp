@@ -137,49 +137,49 @@ public void OnPluginStart() {
 
     // Create convars.
     gCvEnabled = CreateConVar("l4d2pb_enabled", "1", "Enables or disables L4D2 Party Boxes plugin.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvEnabled, CVar_Changed);
+    gCvEnabled.AddChangeHook(CVar_Changed);
 
     gCvVerbose = CreateConVar("l4d2pb_verbose", "0", "The plugin's verbose level.", _, true, 0.0);
-    HookConVarChange(gCvVerbose, CVar_Changed);
+    gCvVerbose.AddChangeHook(CVar_Changed);
 
     gCvVerboseType = CreateConVar("l4d2pb_verbose_type", "0", "The type of verbose messages. 0 = prints to chat. 1 = prints to server console. 2 = prints to client's console.", _, true, 0.0);
-    HookConVarChange(gCvVerboseType, CVar_Changed);
+    gCvVerboseType.AddChangeHook(CVar_Changed);
 
     gCvAnnounce = CreateConVar("l4d2pb_announce", "1", "Whether to announce who opens boxes.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvAnnounce, CVar_Changed);
+    gCvAnnounce.AddChangeHook(CVar_Changed);
 
     gCvAnnounceType = CreateConVar("l4d2pb_announce_type", "3", "What type of printing to do for announcing. 0 = chat. 1 = server console. 2 = client console. 3 = hint.", _, true, 0.0);
-    HookConVarChange(gCvAnnounceType, CVar_Changed);
+    gCvAnnounceType.AddChangeHook(CVar_Changed);
 
     gCvRemoveOpened = CreateConVar("l4d2pb_remove_opened", "1", "If 1, any boxes that are opened (and not none type) are removed immediately when opened.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvRemoveOpened, CVar_Changed);
+    gCvRemoveOpened.AddChangeHook(CVar_Changed);
 
     gCvNoneChance = CreateConVar("l4d2pb_chance_none", "0.10", "The chances of getting no fun boxes when opened.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvNoneChance, CVar_Changed);
+    gCvNoneChance.AddChangeHook(CVar_Changed);
 
     gCvGoodChance = CreateConVar("l4d2pb_chance_good", "0.15", "The chances of a good box being opened.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvGoodChance, CVar_Changed);
+    gCvGoodChance.AddChangeHook(CVar_Changed);
 
     gCvMidChance = CreateConVar("l4d2pb_chance_mid", "0.50", "The chances of a mid box being opened.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvMidChance, CVar_Changed);
+    gCvMidChance.AddChangeHook(CVar_Changed);
 
     gCvBadChance = CreateConVar("l4d2pb_chance_bad", "0.25", "The chances of a bad box being opened.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvBadChance, CVar_Changed);
+    gCvBadChance.AddChangeHook(CVar_Changed);
 
     gCvMaxType = CreateConVar("l4d2pb_max_type", "0", "The type of max limits. 0 = round-based. 1 = map-based.", _, true, 0.0, true, 2.0);
-    HookConVarChange(gCvMaxType, CVar_Changed);
+    gCvMaxType.AddChangeHook(CVar_Changed);
 
     gCvMaxGoodBoxes = CreateConVar("l4d2pb_max_good_boxes", "-1", "The maximum amount of good boxes that can be opened per round. 0 = disables good boxes. -1 = no limit.");
-    HookConVarChange(gCvMaxGoodBoxes, CVar_Changed);
+    gCvMaxGoodBoxes.AddChangeHook(CVar_Changed);
 
     gCvMaxMidBoxes = CreateConVar("l4d2pb_max_mid_boxes", "-1", "The maximum amount of mid boxes that can be opened per round. 0 = disables mid boxes. -1 = no limit.");
-    HookConVarChange(gCvMaxMidBoxes, CVar_Changed);
+    gCvMaxMidBoxes.AddChangeHook(CVar_Changed);
 
     gCvMaxBadBoxes = CreateConVar("l4d2_max_bad_boxes", "-1", "The maximum amount of bad boxes that can be opened per round. 0 = disables bad boxes. -1 = no limit.");
-    HookConVarChange(gCvMaxBadBoxes, CVar_Changed);
+    gCvMaxBadBoxes.AddChangeHook(CVar_Changed);
 
     gCvEndRoundStats = CreateConVar("l4d2pb_end_round_stats", "1", "Whether to display stats in chat on round end.", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvEndRoundStats, CVar_Changed);
+    gCvEndRoundStats.AddChangeHook(CVar_Changed);
 
     CreateConVar("l4d2pb_version", PL_VERSION, "The plugin's version.");
 
@@ -226,27 +226,27 @@ public void OnPluginEnd() {
 }
 
 stock void SetCVars() {
-    gEnabled = GetConVarBool(gCvEnabled);
+    gEnabled = gCvEnabled.BoolValue;
 
-    gVerbose = GetConVarInt(gCvVerbose);
-    gVerboseType = GetConVarInt(gCvVerboseType);
+    gVerbose = gCvVerbose.IntValue;
+    gVerboseType = gCvVerboseType.IntValue;
 
-    gAnnounce = GetConVarBool(gCvAnnounce);
-    gAnnounceType = GetConVarInt(gCvAnnounceType);
+    gAnnounce = gCvAnnounce.BoolValue;
+    gAnnounceType = gCvAnnounceType.IntValue;
 
-    gRemoveOpened = GetConVarBool(gCvRemoveOpened);
+    gRemoveOpened = gCvRemoveOpened.BoolValue;
     
-    gNoneChance = GetConVarFloat(gCvNoneChance);
-    gGoodChance = GetConVarFloat(gCvGoodChance);
-    gMidChance = GetConVarFloat(gCvMidChance);
-    gBadChance = GetConVarFloat(gCvBadChance);
+    gNoneChance = gCvNoneChance.FloatValue;
+    gGoodChance = gCvGoodChance.FloatValue;
+    gMidChance = gCvMidChance.FloatValue;
+    gBadChance = gCvBadChance.FloatValue;
 
-    gMaxType = GetConVarInt(gCvMaxType);
-    gMaxGoodBoxes = GetConVarInt(gCvMaxGoodBoxes);
-    gMaxMidBoxes = GetConVarInt(gCvMaxMidBoxes);
-    gMaxBadBoxes = GetConVarInt(gCvMaxBadBoxes);
+    gMaxType = gCvMaxType.IntValue;
+    gMaxGoodBoxes = gCvMaxGoodBoxes.IntValue;
+    gMaxMidBoxes = gCvMaxMidBoxes.IntValue;
+    gMaxBadBoxes = gCvMaxBadBoxes.IntValue;
 
-    gEndRoundStats = GetConVarBool(gCvEndRoundStats);
+    gEndRoundStats = gCvEndRoundStats.BoolValue;
 }
 
 public void OnConfigsExecuted() {
@@ -262,7 +262,7 @@ public void CVar_Changed(ConVar cv, const char[] oldV, const char[] newV) {
     SetCVars();
 }
 
-stock void BetterPrintToChat(int client, const char[] msg, any...) {
+stock void BPrintToChat(int client, const char[] msg, any...) {
     // We need to format the message.
     int len = strlen(msg) + CHAT_EXTRA_BYTES;
     char[] fMsg = new char[len];
@@ -280,7 +280,7 @@ stock void BetterPrintToChat(int client, const char[] msg, any...) {
 #endif
 }
 
-stock void BetterPrintToChatAll(const char[] msg, any...) {
+stock void BPrintToChatAll(const char[] msg, any...) {
     // We need to format the message.
     int len = strlen(msg) + CHAT_EXTRA_BYTES;
     char[] fMsg = new char[len];
@@ -367,26 +367,26 @@ stock void PrintStats() {
     if (mostGoodClient != -1 && gClGoodBoxesOpened[mostGoodClient] > 0) {
         GetClientName(mostGoodClient, mostGoodName, sizeof(mostGoodName));
 
-        BetterPrintToChatAll("%t %t", "Tag", "EndRoundStatsGood", mostGoodName, gClGoodBoxesOpened[mostGoodClient]);
+        BPrintToChatAll("%t %t", "Tag", "EndRoundStatsGood", mostGoodName, gClGoodBoxesOpened[mostGoodClient]);
     }
 
     // Print most mid boxes if we have a count.
     if (mostMidClient != -1 && gClMidBoxesOpened[mostMidClient] > 0) {
         GetClientName(mostMidClient, mostMidName, sizeof(mostMidName));
 
-        BetterPrintToChatAll("%t %t", "Tag", "EndRoundStatsMid", mostMidName, gClMidBoxesOpened[mostMidClient]);
+        BPrintToChatAll("%t %t", "Tag", "EndRoundStatsMid", mostMidName, gClMidBoxesOpened[mostMidClient]);
     }
 
     // Print most bad boxes if we have a count.
     if (mostBadClient != -1 && gClBadBoxesOpened[mostBadClient] > 0) {
         GetClientName(mostBadClient, mostBadName, sizeof(mostBadName));
 
-        BetterPrintToChatAll("%t %t", "Tag", "EndRoundStatsBad", mostBadName, gClBadBoxesOpened[mostBadClient]);
+        BPrintToChatAll("%t %t", "Tag", "EndRoundStatsBad", mostBadName, gClBadBoxesOpened[mostBadClient]);
     }
 
     int totalBoxes = gGoodBoxesOpened + gMidBoxesOpened + gBadBoxesOpened;
 
-    BetterPrintToChatAll("%t %t", "Tag", "EndRoundStatsGlobal", totalBoxes, gGoodBoxesOpened, gMidBoxesOpened, gBadBoxesOpened);
+    BPrintToChatAll("%t %t", "Tag", "EndRoundStatsGlobal", totalBoxes, gGoodBoxesOpened, gMidBoxesOpened, gBadBoxesOpened);
 }
 
 stock void AnnounceBox(int client, Box box) {
@@ -401,7 +401,7 @@ stock void AnnounceBox(int client, Box box) {
 
     switch (view_as<MsgType>(gAnnounceType)) {
         case MSG_CHAT:
-            BetterPrintToChatAll("%t %s", "Tag", msg);
+            BPrintToChatAll("%t %s", "Tag", msg);
 
         case MSG_SERVER:
             PrintToServer("%t %s", "Tag", msg);
@@ -552,7 +552,7 @@ public Action Command_Stats(int client, int args) {
     int totalBoxes = gGoodBoxesOpened + gMidBoxesOpened + gBadBoxesOpened;
     int clTotalBoxes = gClGoodBoxesOpened[client] + gClMidBoxesOpened[client] + gClBadBoxesOpened[client];
 
-    BetterPrintToChat(client, "%t %t", "Tag", "CmdStatsGlobal", totalBoxes, clTotalBoxes, gBoxes.Length);
+    BPrintToChat(client, "%t %t", "Tag", "CmdStatsGlobal", totalBoxes, clTotalBoxes, gBoxes.Length);
 
     return Plugin_Handled;
 }
@@ -560,7 +560,7 @@ public Action Command_Stats(int client, int args) {
 public Action Command_OpenBox(int client, int args) {
     // Make sure we have a box name.
     if (args < 1) {
-        BetterPrintToChat(client, "Usage: sm_l4d2pb_open <box name>");
+        BPrintToChat(client, "Usage: sm_l4d2pb_open <box name>");
 
         return Plugin_Handled;
     }
@@ -570,7 +570,7 @@ public Action Command_OpenBox(int client, int args) {
 
     GetCmdArg(1, boxName, sizeof(boxName));
 
-    BetterPrintToChat(client, "%t %t", "Tag", "CmdOpenReply", boxName);
+    BPrintToChat(client, "%t %t", "Tag", "CmdOpenReply", boxName);
 
     // Call box opened forward with specified box name.
     Call_StartForward(gGfBoxOpened);
@@ -596,8 +596,8 @@ public Action Command_OpenBox(int client, int args) {
 
 #if defined TEST_CHATALL_CMD
 public Action Command_Test(int client, int args) {
-    BetterPrintToChat(client, "{red} Test {default} message sent to {green}client {default}(%N)!", client);
-    BetterPrintToChatAll("{red} Test {default} message sent to {green}all {default}clients!");
+    BPrintToChat(client, "{red} Test {default} message sent to {green}client {default}(%N)!", client);
+    BPrintToChatAll("{red} Test {default} message sent to {green}all {default}clients!");
 
     PrintToChat(client, "Test done!");
 
@@ -766,7 +766,7 @@ public int Native_PrintToChat(Handle pl, int paramsCnt) {
     char fMsg[4096];
     FormatNativeString(0, 0, 3, sizeof(fMsg), _, fMsg, msg);
 
-    BetterPrintToChat(client, fMsg);
+    BPrintToChat(client, fMsg);
     
     return 0;
 }
@@ -784,7 +784,7 @@ public int Native_PrintToChatAll(Handle pl, int paramsCnt) {
     char fMsg[4096];
     FormatNativeString(0, 0, 2, sizeof(fMsg), _, fMsg, msg);
 
-    BetterPrintToChatAll(fMsg);
+    BPrintToChatAll(fMsg);
     
     return 0;
 }

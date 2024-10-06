@@ -81,16 +81,16 @@ public void OnPluginStart() {
 
     // Create convars.
     gCvEnabled = CreateConVar("l4d2pb_box_vomit_enabled", "1", "Enables the vomit box", _, true, 0.0, true, 1.0);
-    HookConVarChange(gCvEnabled, CVar_Changed);
+    gCvEnabled.AddChangeHook(CVar_Changed);
 
     gCvVomitSound = CreateConVar("l4d2pb_box_vomit_vomit_sound", "", "If non-empty, will play this sound file when a player is vomited on (treated as a path).");
-    HookConVarChange(gCvVomitSound, CVar_Changed);
+    gCvVomitSound.AddChangeHook(CVar_Changed);
 
     gCvRadiusMin = CreateConVar("l4d2pb_box_vomit_radius_min", "200", "The minimum radius to vomit players in.", _, true, 0.0);
-    HookConVarChange(gCvRadiusMin, CVar_Changed);
+    gCvRadiusMin.AddChangeHook(CVar_Changed);
 
     gCvRadiusMax = CreateConVar("l4d2pb_box_vomit_radius_max", "500", "The maximum radius to vomit players in. 0 = Disables other players being impacted.", _, true, 0.0);
-    HookConVarChange(gCvRadiusMax, CVar_Changed);
+    gCvRadiusMax.AddChangeHook(CVar_Changed);
 
     CreateConVar("l4d2pb_box_vomit_version", PL_VERSION, "The vomit box's version.");
 
@@ -117,12 +117,12 @@ stock LoadBox() {
 }
 
 stock SetCVars() {
-    gEnabled = GetConVarBool(gCvEnabled);
+    gEnabled = gCvEnabled.BoolValue;
 
-    GetConVarString(gCvVomitSound, gVomitSound, sizeof(gVomitSound));
+    gCvVomitSound.GetString(gVomitSound, sizeof(gVomitSound));
 
-    gRadiusMin = GetConVarFloat(gCvRadiusMin);
-    gRadiusMax = GetConVarFloat(gCvRadiusMax);
+    gRadiusMin = gCvRadiusMin.FloatValue;
+    gRadiusMax = gCvRadiusMax.FloatValue;
 
     LoadBox();
 }
