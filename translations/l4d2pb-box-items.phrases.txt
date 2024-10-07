@@ -1,0 +1,200 @@
+"Phrases"
+{
+    "ItemAnnounce"
+    {
+        "#format"       "{1:s},{2:s}"
+        "en"            "{1} has found the item '{2}' from the items box!"
+    }
+    "weapon_first_aid_kit"
+    {
+        "en"            "First Aid Kit"
+    }
+    "weapon_defibrillator"
+    {
+        "en"            "Defibrillator"
+    }
+    "weapon_adrenaline"
+    {
+        "en"            "Adrenaline"
+    }
+    "cricket_bat"
+    {
+        "en"            "Cricket Bat"
+    }
+    "crowbar"
+    {
+        "en"            "Crowbar"
+    }
+    "electric_guitar"
+    {
+        "en"            "Electric Guitar"
+    }
+    "weapon_chainsaw"
+    {
+        "en"            "Chainsaw"
+    }
+    "katana"
+    {
+        "en"            "Katana"
+    }
+    "machete"
+    {
+        "en"            "machete"
+    }
+    "tonfa"
+    {
+        "en"            "Tonfa"
+    }
+    "baseball_bat"
+    {
+        "en"            "Baseball Bat"
+    }
+    "frying_pan"
+    {
+        "en"            "Frying Pan"
+    }
+    "fireaxe"
+    {
+        "en"            "Fireaxe"
+    }
+    "weapon_pistol"
+    {
+        "en"            "Pistol"
+    }
+    "weapon_pistol_magnum"
+    {
+        "en"            "Mangum Pistol"
+    }
+    "weapon_smg"
+    {
+        "en"            "SMG"
+    }
+    "weapon_smg_mp5"
+    {
+        "en"            "MP5"
+    }
+    "weapon_smg_silenced"
+    {
+        "en"            "Silenced SMG"
+    }
+    "weapon_pumpshotgun"
+    {
+        "en"            "Pump Shotgun"
+    }
+    "weapon_shotgun_chrome"
+    {
+        "en"            "Chrome Shotgun"
+    }
+    "weapon_shotgun_spas"
+    {
+        "en"            "Spas Shotgun"
+    }
+    "weapon_sniper_scout"
+    {
+        "en"            "Scout"
+    }
+    "weapon_sniper_military"
+    {
+        "en"            "Military Sniper"
+    }
+    "weapon_sniper_awp"
+    {
+        "en"            "Awp"
+    }
+    "weapon_hunting_rifle"
+    {
+        "en"            "Hunting Rifle"
+    }
+    "weapon_rifle"
+    {
+        "en"            "Rifle"
+    }
+    "weapon_rifle_desert"
+    {
+        "en"            "Desert Rifle"
+    }
+    "weapon_rifle_ak47"
+    {
+        "en"            "AK47"
+    }
+    "weapon_rifle_sg552"
+    {
+        "en"            "SG552"
+    }
+    "weapon_grenade_launcher"
+    {
+        "en"            "Grenade Launcher"
+    }
+    "weapon_pipe_bomb"
+    {
+        "en"            "Pipe Bomb"
+    }
+    "weapon_molotov"
+    {
+        "en"            "Molotov"
+    }
+    "weapon_vomitjar"
+    {
+        "en"            "Vomit Jar"
+    }
+    "weapon_upgradepack_explosive"
+    {
+        "en"            "Explosive Upgrade Box"
+    }
+    "weapon_upgradepack_incendiary"
+    {
+        "en"            "Incendiary Upgrade Box"
+    }
+    "weapon_fireworkcrate"
+    {
+        "en"            "Fireworks Crate"
+    }
+    "weapon_gascan"
+    {
+        "en"            "Gas Can"
+    }
+    "weapon_autoshotgun"
+    {
+        "en"            "Auto-Shotgun"
+    }
+    "knife"
+    {
+        "en"            "Knife"
+    }
+    "weapon_oxygentank"
+    {
+        "en"            "Oxygen Tank"
+    }
+    "weapon_propanetank"
+    {
+        "en"            "Propane Tank"
+    }
+    "golfclub"
+    {
+        "en"            "Golfclub"
+    }
+    "weapon_rifle_m60"
+    {
+        "en"            "Rifle"
+    }
+    "riotshield"
+    {
+        "en"            "Riot Shield"
+    }
+    "weapon_gnome"
+    {
+        "en"            "Gnome"
+    }
+    "weapon_cola_bottles"
+    {
+        "en"            "Cola Bottles"
+    }
+    "shovel"
+    {
+        "en"            "Shovel"
+    }
+    "pitchfork"
+    {
+        "en"            "Pitchfork"
+    }
+}

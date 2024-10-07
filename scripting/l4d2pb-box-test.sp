@@ -95,8 +95,6 @@ public void Activate() {
 }
 
 public void L4D2PB_OnBoxOpened(int type, const char[] boxName, int userId) {
-    L4D2PB_DebugMsg(4, "Got BoxOpened() event! Box name => %s. Box opener => %N", boxName, GetClientOfUserId(userId));
-
     if (strcmp(boxName, BOX_NAME, false) == 0)
         Activate();
 }
