@@ -157,10 +157,10 @@ public void OnPluginStart() {
     gCvNoneChance = CreateConVar("l4d2pb_chance_none", "0.10", "The chances of getting no fun boxes when opened.", _, true, 0.0, true, 1.0);
     gCvNoneChance.AddChangeHook(CVar_Changed);
 
-    gCvGoodChance = CreateConVar("l4d2pb_chance_good", "0.15", "The chances of a good box being opened.", _, true, 0.0, true, 1.0);
+    gCvGoodChance = CreateConVar("l4d2pb_chance_good", "0.25", "The chances of a good box being opened.", _, true, 0.0, true, 1.0);
     gCvGoodChance.AddChangeHook(CVar_Changed);
 
-    gCvMidChance = CreateConVar("l4d2pb_chance_mid", "0.50", "The chances of a mid box being opened.", _, true, 0.0, true, 1.0);
+    gCvMidChance = CreateConVar("l4d2pb_chance_mid", "0.40", "The chances of a mid box being opened.", _, true, 0.0, true, 1.0);
     gCvMidChance.AddChangeHook(CVar_Changed);
 
     gCvBadChance = CreateConVar("l4d2pb_chance_bad", "0.25", "The chances of a bad box being opened.", _, true, 0.0, true, 1.0);
