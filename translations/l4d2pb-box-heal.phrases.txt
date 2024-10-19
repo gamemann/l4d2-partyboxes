@@ -1,0 +1,8 @@
+"Phrases"
+{
+    "ClAnnounce"
+    {
+        "#format"       "{1:s},{2:d}"
+        "en"            "{1} has opened a heal box which gave you {2} HP!"
+    }
+}
