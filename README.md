@@ -670,6 +670,7 @@ l4d2pb_box_heal_radius_min "100.0"
 l4d2pb_box_heal_version "1.0.0"
 ```
 </details>
+
 ### [Test](./scripting/l4d2pb-box-test.sp)
 This is a test box registered under the **Mid** category. It is disabled by default and simply prints a message to chat.
 
