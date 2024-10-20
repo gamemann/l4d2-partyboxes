@@ -66,7 +66,7 @@ public void OnPluginStart() {
     gGameData = LoadGameConfigFile(GAMEDATA);
 
     if (gGameData == null)
-        SetFailState("Failed to load gamedata file '%s' for L4D2PB-Box-Vomit :: LoadGameConfigFile() failed.");
+        SetFailState("Failed to load gamedata file '%s' for L4D2PB-Box-Vomit :: LoadGameConfigFile() failed.", gdPath);
 
     // Load OnVomitedUpon function.
     StartPrepSDKCall(SDKCall_Player);
