@@ -20,6 +20,7 @@ public Plugin myinfo = {
 
 // ConVars
 ConVar gCvEnabled = null;
+ConVar gCvWeight = null;
 
 ConVar gCvVomitSound = null;
 
@@ -28,6 +29,7 @@ ConVar gCvRadiusMax = null;
 
 // ConVar values
 bool gEnabled;
+float gWeight;
 
 char gVomitSound[PLATFORM_MAX_PATH];
 
@@ -83,6 +85,9 @@ public void OnPluginStart() {
     gCvEnabled = CreateConVar("l4d2pb_box_vomit_enabled", "1", "Enables the vomit box", _, true, 0.0, true, 1.0);
     gCvEnabled.AddChangeHook(CVar_Changed);
 
+    gCvWeight = CreateConVar("l4d2pb_box_vomit_weight", "50.0", "The vomit box's weight on getting picked.");
+    gCvWeight.AddChangeHook(CVar_Changed);
+
     gCvVomitSound = CreateConVar("l4d2pb_box_vomit_vomit_sound", "", "If non-empty, will play this sound file when a player is vomited on (treated as a path).");
     gCvVomitSound.AddChangeHook(CVar_Changed);
 
@@ -109,7 +114,7 @@ stock LoadBox() {
         } else if (gEnabled && !gLoaded) {
             L4D2PB_DebugMsg(2, "Loading vomit box!");
 
-            L4D2PB_RegisterBox(BOXTYPE_BAD, BOX_NAME, BOX_DISPLAY);
+            L4D2PB_RegisterBox(BOXTYPE_BAD, BOX_NAME, BOX_DISPLAY, gWeight);
 
             gLoaded = true;
         }
@@ -118,6 +123,7 @@ stock LoadBox() {
 
 stock SetCVars() {
     gEnabled = gCvEnabled.BoolValue;
+    gWeight = gCvWeight.FloatValue;
 
     gCvVomitSound.GetString(gVomitSound, sizeof(gVomitSound));
 

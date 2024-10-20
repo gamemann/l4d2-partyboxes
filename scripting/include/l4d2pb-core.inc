@@ -16,11 +16,12 @@ enum BoxType {
  *
  * @param type      The box type (BoxType enum).
  * @param name      A short/code name for the box.
- * @param display   The box display name.      
+ * @param display   The box display name.
+ * @param weight    The boxes weight when being picked (the higher this value is, the more of a chance of the box being picked).
  *
  * @return 0 on success or 1 on error.
  */
-native int L4D2PB_RegisterBox(BoxType type, const char[] name, const char[] display);
+native int L4D2PB_RegisterBox(BoxType type, const char[] name, const char[] display, float weight = 50.0);
 
 /**
  * Unloads a box from the core.

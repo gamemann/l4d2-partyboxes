@@ -32,6 +32,7 @@ enum struct Box {
     BoxType type;
     char name[MAX_NAME_LENGTH];
     char display[MAX_NAME_LENGTH];
+    float weight;
 }
 
 int gNoneBoxesOpened = 0;
@@ -523,6 +524,8 @@ stock BoxType PickRandomBoxType() {
 stock Box PickRandomBox(BoxType type) {
     ArrayList boxes = new ArrayList(sizeof(Box));
 
+    float sum = 0.0;
+
     for (int i = 0; i < gBoxes.Length; i++) {
         Box cur;
 
@@ -530,19 +533,39 @@ stock Box PickRandomBox(BoxType type) {
 
         DebugMsg(5, "Checking box at index %d (type %d == %d).", i, view_as<int>(cur.type), view_as<int>(type));
 
-        if (cur.type == type)
+        if (cur.type == type) {
             boxes.PushArray(cur);
+
+            sum += cur.weight;
+        }
     }
 
-    // Choose random box.
-    Box ret;
+    // Get random float from 0 to sum.
+    float rand = GetRandomFloat(0.0, sum);
+
+    float cWeight = 0.0;
     
+    if (boxes.Length > 0) {
+        // Loop through each box.
+        for (int i = 0; i < boxes.Length; i++) {
+            Box box;
+            boxes.GetArray(i, box);
+
+            cWeight += box.weight;
+
+            if (rand <= cWeight)
+                return box;
+        }
+    }
+
+    Box ret;
+
     if (boxes.Length > 0) {
         int idx = GetRandomInt(0, boxes.Length - 1);
 
         boxes.GetArray(idx, ret);
 
-        DebugMsg(5, "Choosing random box at index %d!", idx, ret.name);
+        DebugMsg(5, "Choosing random box at index %d since weight didn't work!", idx, ret.name);
     }
 
     return ret;
@@ -813,12 +836,16 @@ public int Native_RegisterBox(Handle pl, int paramsCnt) {
     char[] display = new char[displayLen + 1];
     GetNativeString(3, display, displayLen + 1);
 
+    // Get weight
+    float weight = view_as<float>(GetNativeCell(4));
+
     // Create box.
     Box newBox;
 
     strcopy(newBox.name, sizeof(newBox.name), name);
     strcopy(newBox.display, sizeof(newBox.display), display);
     newBox.type = view_as<BoxType>(type);
+    newBox.weight = weight;
 
     // Remove dups.
     BoxRemoveDups(name);

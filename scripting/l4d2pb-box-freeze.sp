@@ -20,6 +20,7 @@ public Plugin myinfo = {
 
 // ConVars
 ConVar gCvEnabled = null;
+ConVar gCvWeight = null;
 
 ConVar gCvAnnounce = null;
 
@@ -39,6 +40,7 @@ ConVar gCvUnfreezeRgba = null;
 
 // ConVar values
 bool gEnabled;
+float gWeight;
 
 bool gAnnounce;
 
@@ -77,6 +79,9 @@ public void OnLibraryAdded(const char[] name) {
 public void OnPluginStart() {
     gCvEnabled = CreateConVar("l4d2pb_box_freeze_enabled", "1", "Enables the freeze box", _, true, 0.0, true, 1.0);
     gCvEnabled.AddChangeHook(CVar_Changed);
+
+    gCvWeight = CreateConVar("l4d2pb_box_freeze_weight", "50.0", "The box's weight when being picked.");
+    gCvWeight.AddChangeHook(CVar_Changed);
 
     gCvAnnounce = CreateConVar("l4d2pb_box_freeze_announce", "1", "Announces to players affected by freeze.", _, true, 0.0, true, 1.0);
     gCvAnnounce.AddChangeHook(CVar_Changed);
@@ -132,7 +137,7 @@ stock LoadBox() {
         } else if (gEnabled && !gLoaded) {
             L4D2PB_DebugMsg(2, "Loading freeze box!");
 
-            L4D2PB_RegisterBox(BOXTYPE_BAD, BOX_NAME, BOX_DISPLAY);
+            L4D2PB_RegisterBox(BOXTYPE_BAD, BOX_NAME, BOX_DISPLAY, gWeight);
 
             gLoaded = true;
         }
@@ -141,6 +146,7 @@ stock LoadBox() {
 
 stock SetCVars() {
     gEnabled = gCvEnabled.BoolValue;
+    gWeight = gCvWeight.FloatValue;
 
     gAnnounce = gCvAnnounce.BoolValue;
 

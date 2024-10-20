@@ -28,6 +28,7 @@ enum struct Item {
 
 // ConVars
 ConVar gCvEnabled = null;
+ConVar gCvWeight = null;
 
 ConVar gCvAnnounce = null;
 
@@ -39,7 +40,8 @@ ConVar gCvMaxForce = null;
 ConVar gCvRandomForcePerItem = null;
 
 // ConVar values
-bool gEnabled = false;
+bool gEnabled;
+float gWeight;
 
 bool gAnnounce;
 
@@ -71,6 +73,9 @@ public void OnPluginStart() {
     // ConVars.
     gCvEnabled = CreateConVar("l4d2pb_box_items_enabled", "1", "Enables the items box", _, true, 0.0, true, 1.0);
     gCvEnabled.AddChangeHook(CVar_Changed);
+
+    gCvWeight = CreateConVar("l4d2pb_box_items_weight", "50.0", "The box's weight when being picked.");
+    gCvWeight.AddChangeHook(CVar_Changed);
 
     gCvAnnounce = CreateConVar("l4d2pb_box_items_announce", "1", "Announces each item found from the items box.", _, true, 0.0, true, 1.0);
     gCvAnnounce.AddChangeHook(CVar_Changed);
@@ -117,7 +122,7 @@ stock LoadBox() {
         } else if (gEnabled && !gLoaded) {
             L4D2PB_DebugMsg(2, "Loading items box!");
 
-            L4D2PB_RegisterBox(BOXTYPE_GOOD, BOX_NAME, BOX_DISPLAY);
+            L4D2PB_RegisterBox(BOXTYPE_GOOD, BOX_NAME, BOX_DISPLAY, gWeight);
 
             gLoaded = true;
         }
@@ -205,6 +210,7 @@ public void OnMapStart() {
 
 stock SetCVars() {
     gEnabled = gCvEnabled.BoolValue;
+    gWeight = gCvWeight.FloatValue;
 
     gAnnounce = gCvAnnounce.BoolValue;
 

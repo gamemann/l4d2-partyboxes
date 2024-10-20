@@ -6,6 +6,7 @@
 
 #define BOX_NAME "test"
 #define BOX_DISPLAY "Test"
+#define BOX_WEIGHT 30.0
 
 public Plugin myinfo = {
     name = "L4D2 Party Boxes - Box - Test",
@@ -56,7 +57,7 @@ stock LoadBox() {
         } else if (gEnabled && !gLoaded) {
             L4D2PB_DebugMsg(2, "Loading test box!");
 
-            L4D2PB_RegisterBox(BOXTYPE_MID, BOX_NAME, BOX_DISPLAY);
+            L4D2PB_RegisterBox(BOXTYPE_MID, BOX_NAME, BOX_DISPLAY, BOX_WEIGHT);
 
             gLoaded = true;
         }
